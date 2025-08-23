@@ -35,6 +35,6 @@ mail:
     host: smtp.gmail.com
     port: 587
     email: notificationservice2004@gmail.com
-    password: laqu gdif nqrs zwnc
+    password:
 server:
   port: 8085
