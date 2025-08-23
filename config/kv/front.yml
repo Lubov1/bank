@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: front
+  config:
+    import: "consul:"
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8090/realms/master/protocol/openid-connect/token
+        registration:
+          front:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: front
+            client-secret: front-secret
+            scope: profile,email
+  cloud:
+    consul:
+      config:
+        enabled: true
+        prefix: config
+        defaultContext: common
+        dataKey: data
+        format: YAML
+        watch:
+          enabled: true
+          delay: 1000
+      host: localhost
+      port: 8500
+accounts:
+  prefix: accounts
+gateway:
+  prefix: gateway-api
+
+server:
+  port: 8083

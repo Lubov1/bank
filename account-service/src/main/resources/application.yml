@@ -1,0 +1,66 @@
+#spring:
+#  application:
+#    name: accounts
+#  config:
+#    import: "consul:"
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    password: password
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  security:
+#    oauth2:
+#      client:
+#        provider:
+#          keycloak:
+#            token-uri: http://localhost:8090/realms/master/protocol/openid-connect/token
+#        registration:
+#          accounts:
+#            authorization-grant-type: client_credentials
+#            provider: keycloak
+#            client-id: accounts
+#            client-secret: accounts-secret
+#            scope: profile,email
+#  cloud:
+#    consul:
+#      config:
+#        enabled: true
+#        prefix: config         # базовый путь в KV
+#        defaultContext: common
+#        dataKey: data          # имя ключа, где лежит сам YAML/props
+#        format: YAML           # YAML | PROPERTIES | KEY_VALUE
+#        watch:
+#          enabled: true        # авто-обновление при изменениях
+#          delay: 1000
+#      host: localhost
+#      port: 8500
+#      discovery:
+#        enabled: true
+#        register: true
+#        prefer-ip-address: true
+#        health-check-path: /actuator/health
+#        health-check-interval: 10s
+#  management:
+#    endpoints:
+#      web:
+#        exposure:
+#          include: health,info
+#
+#keycloak:
+#  realm: master
+#  client-id: userService
+#  client-secret: accounts-secret
+#  auth-server-url: http://localhost:8090/realms/master
+#  token-endpoint: http://localhost:8090/realms/master/protocol/openid-connect/token
+#
+#server:
+#  port: 8082
+#
+#emailService: notifications

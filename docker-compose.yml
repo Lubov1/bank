@@ -1,0 +1,134 @@
+version: '3.8'
+services:
+#  client-backend:
+#    image: client:0.0.1
+#    platform: linux/amd64
+#    build:
+#      context: .
+#      dockerfile: DockerfileMainService
+#    ports:
+#      - "8180:8080"
+#    depends_on:
+#      service-db:
+#        condition: service_healthy
+#      redis-cache:
+#        condition: service_healthy
+#      keycloak:
+#        condition: service_healthy
+#    environment:
+#      - SERVER_PORT=8080
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/postgres
+#
+#  payment-service:
+#    image: payment-service:0.0.1
+#    platform: linux/amd64
+#    build:
+#      context: .
+#      dockerfile: DockerfilePaymentService
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - SERVER_PORT=8081
+#
+#  redis-cache:
+#    image: redis:latest
+#    platform: linux/amd64
+#    healthcheck:
+#      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+#      interval: 1s
+#      timeout: 3s
+#      retries: 5
+#    command: [ "redis-server" ]
+#
+#  service-db:
+#    image: postgres:14.7
+#    platform: linux/amd64
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: password
+#    ports:
+#      - "15432:5432"
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+#    restart: unless-stopped
+#    healthcheck:
+#      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
+  consul:
+    image: hashicorp/consul:1.17
+    container_name: consul
+    command: agent -dev -client=0.0.0.0
+    ports:
+      - "8500:8500"
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:8500/v1/status/leader" ]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+
+
+  consul-seeder:
+    image: curlimages/curl:8.8.0
+    depends_on:
+      consul:
+        condition: service_healthy
+    volumes:
+      - ./config:/config:ro
+    entrypoint: [ "/bin/sh", "/config/config.sh" ]
+    environment:
+      CONSUL_ADDR: http://consul:8500
+      # Если нужно другой префикс/ключ:
+      CONSUL_KV_PREFIX: config
+      CONSUL_DATA_KEY: data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    platform: linux/amd64
+    container_name: keycloak
+    command:
+      - start-dev
+    volumes:
+      - ./keycloak/keycloak-setup.sh:/opt/keycloak/keycloak-setup.sh
+    entrypoint: >
+      /bin/bash -c "
+        /opt/keycloak/bin/kc.sh $${0} &             
+        pid=$$!
+        /opt/keycloak/keycloak-setup.sh             
+        wait $$pid                                  
+      " start-dev --import-realm
+    healthcheck:
+      test: >
+        /bin/bash -c '
+          /opt/keycloak/bin/kcadm.sh config credentials \
+            --server http://localhost:8080 \
+            --realm master \
+            --user admin \
+            --password admin > /dev/null 2>&1
+        '
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    ports:
+      - "8090:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+#  pgadmin:
+#    container_name: pgadmin4_container
+#    image: dpage/pgadmin4:7
+#    restart: always
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: root
+#    ports:
+#      - "5050:80"
+#    volumes:
+#      - pgadmin-data:/var/lib/pgadmin
+#
+#volumes:
+#  db-data:
+#  pgadmin-data:
