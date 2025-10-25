@@ -21,10 +21,4 @@ public class NotificationController {
         notificationService.sendEmail(email, message);
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/notifications/sendEmail")
-    public ResponseEntity<?> sendNotification2(@RequestParam String email, @RequestParam String message) {
-        System.out.println("Email2: " + email + "Message: " + message);
-        notificationService.sendEmail(email, message);
-        return ResponseEntity.ok().build();
-    }
 }

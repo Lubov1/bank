@@ -1,0 +1,16 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          cash:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: cash
+            client-secret: cash-secret
+            scope: profile,email
+
+blockerService:
+  needed: true
+notificationsService:
+  needed: true

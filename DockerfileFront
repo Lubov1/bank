@@ -1,0 +1,14 @@
+FROM maven:3.9-eclipse-temurin AS builder
+WORKDIR /build
+COPY . .
+RUN mvn -pl frontUI -am clean package -DskipTests
+RUN echo "=== JAR-files under /build ===" \
+ && find /build -type f -name "*.jar" -print \
+ || true
+
+FROM openjdk:21-bullseye
+
+COPY --from=builder /build/frontUI/target/front.jar front.jar
+
+EXPOSE 8083
+ENTRYPOINT ["java","-jar","/front.jar"]

@@ -1,0 +1,12 @@
+<div th:fragment="alerts">
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+    <div th:if="${warning}" class="alert alert-warning" th:text="${warning}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <!-- если иногда передаёшь список -->
+    <div th:if="${errors}">
+        <ul class="alert alert-danger" style="list-style:inside">
+            <li th:each="e : ${errors}" th:text="${e}"></li>
+        </ul>
+    </div>
+</div>

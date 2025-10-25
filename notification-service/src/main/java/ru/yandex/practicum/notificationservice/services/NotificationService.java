@@ -34,10 +34,11 @@ public class NotificationService {
             }
         });
 
+        // Создание сообщения
+        Message emailMessage = new MimeMessage(session);
         try {
-            // Создание сообщения
-            Message emailMessage = new MimeMessage(session);
             emailMessage.setFrom(new InternetAddress(smtpEmail));
+
             emailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             emailMessage.setSubject("Уведомление");
             emailMessage.setText(message);
@@ -47,7 +48,7 @@ public class NotificationService {
 
             System.out.println("Письмо отправлено успешно!");
         } catch (MessagingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

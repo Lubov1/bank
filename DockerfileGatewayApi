@@ -1,0 +1,14 @@
+FROM maven:3.9-eclipse-temurin AS builder
+WORKDIR /build
+COPY . .
+RUN mvn -pl gatewayAPI -am clean package -DskipTests
+RUN echo "=== JAR-files under /build ===" \
+ && find /build -type f -name "*.jar" -print \
+ || true
+
+FROM openjdk:21-bullseye
+
+COPY --from=builder /build/gatewayAPI/target/gateway.jar gateway.jar
+
+EXPOSE 8084
+ENTRYPOINT ["java","-jar","/gateway.jar"]

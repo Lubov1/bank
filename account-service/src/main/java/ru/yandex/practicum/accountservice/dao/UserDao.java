@@ -1,24 +1,29 @@
 package ru.yandex.practicum.accountservice.dao;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 import ru.yandex.practicum.accountservice.dto.UserDto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@ToString(exclude = { "accountDao"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(uniqueConstraints = { @UniqueConstraint(name = "login", columnNames = "login")} )
 public class UserDao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-    String name;
-    String password;
-    String login;
-    LocalDate birthdate;
+    private Long id;
+    private String name;
+    private String password;
+    private String login;
+    private LocalDate birthdate;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountDao> accountDao;
 
     public UserDao(String name, String password, String login, LocalDate birthdate) {
         this.name = name;

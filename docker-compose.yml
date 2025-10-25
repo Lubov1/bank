@@ -1,65 +1,143 @@
-version: '3.8'
+
 services:
-#  client-backend:
-#    image: client:0.0.1
-#    platform: linux/amd64
-#    build:
-#      context: .
-#      dockerfile: DockerfileMainService
-#    ports:
-#      - "8180:8080"
-#    depends_on:
-#      service-db:
-#        condition: service_healthy
+  account-service:
+    image: account-service:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileAccountService
+    ports:
+      - "8082:8082"
+    depends_on:
+      service-db:
+        condition: service_healthy
 #      redis-cache:
 #        condition: service_healthy
-#      keycloak:
-#        condition: service_healthy
-#    environment:
-#      - SERVER_PORT=8080
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/postgres
+      keycloak:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/postgres
 #
-#  payment-service:
-#    image: payment-service:0.0.1
-#    platform: linux/amd64
-#    build:
-#      context: .
-#      dockerfile: DockerfilePaymentService
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - SERVER_PORT=8081
+  blocker:
+    image: blocker:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileBlocker
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+
+
+  cash-service:
+    image: cash-service:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileCashService
+    ports:
+      - "8098:8098"
+    environment:
+      - SERVER_PORT=8098
+
 #
-#  redis-cache:
-#    image: redis:latest
-#    platform: linux/amd64
-#    healthcheck:
-#      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
-#      interval: 1s
-#      timeout: 3s
-#      retries: 5
-#    command: [ "redis-server" ]
+
+  exchange:
+    image: exchange:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileExchange
+    ports:
+      - "8095:8095"
+    environment:
+      - SERVER_PORT=8095
+
+
+
+  exchange-generator:
+    image: exchange-generator:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileExchangeGenerator
+    ports:
+      - "8096:8096"
+    environment:
+      - SERVER_PORT=8096
+
+
+  front:
+    image: front:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileFront
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+
+
+  gateway:
+    image: gateway:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileGatewayApi
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_PORT=8084
+
 #
-#  service-db:
-#    image: postgres:14.7
-#    platform: linux/amd64
-#    environment:
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: password
-#    ports:
-#      - "15432:5432"
-#    volumes:
-#      - db-data:/var/lib/postgresql/data
-#    restart: unless-stopped
-#    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-#      interval: 5s
-#      timeout: 3s
-#      retries: 5
+  notification-service:
+    image: notification-service:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileNotificationService
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+#
+  transfer:
+    image: transfer:0.0.1
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: DockerfileTransfer
+    ports:
+      - "8097:8097"
+    environment:
+      - SERVER_PORT=8097
+
+
+  service-db:
+    image: postgres:14.7
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
   consul:
     image: hashicorp/consul:1.17
     container_name: consul
-    command: agent -dev -client=0.0.0.0
+    command: agent -dev -client=0.0.0.0 -log-level=INFO
     ports:
       - "8500:8500"
     healthcheck:
@@ -67,6 +145,11 @@ services:
       interval: 2s
       timeout: 1s
       retries: 30
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
   consul-seeder:
@@ -79,7 +162,6 @@ services:
     entrypoint: [ "/bin/sh", "/config/config.sh" ]
     environment:
       CONSUL_ADDR: http://consul:8500
-      # Если нужно другой префикс/ключ:
       CONSUL_KV_PREFIX: config
       CONSUL_DATA_KEY: data
 
@@ -107,28 +189,16 @@ services:
             --user admin \
             --password admin > /dev/null 2>&1
         '
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 10
       start_period: 30s
     ports:
-      - "8090:8080"
+      - "8080:8080"
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
 
-#  pgadmin:
-#    container_name: pgadmin4_container
-#    image: dpage/pgadmin4:7
-#    restart: always
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: root
-#    ports:
-#      - "5050:80"
-#    volumes:
-#      - pgadmin-data:/var/lib/pgadmin
-#
-#volumes:
-#  db-data:
+volumes:
+  db-data:
 #  pgadmin-data:

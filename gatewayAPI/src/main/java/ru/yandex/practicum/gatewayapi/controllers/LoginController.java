@@ -17,20 +17,18 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import ru.yandex.practicum.gatewayapi.dto.Credentials;
 import ru.yandex.practicum.gatewayapi.dto.UserDto;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
 public class LoginController {
     @Value("${accounts.prefix}")
     private String accountPrefix;
+
 
     public LoginController(RestTemplate template) {
         this.template = template;
@@ -40,24 +38,31 @@ public class LoginController {
     @Autowired
     SecurityContextRepository securityContextRepository;
 
-    @PostMapping
+    @PostMapping("/login")
+    public void login(@RequestBody Credentials user, HttpServletRequest req,
+                      HttpServletResponse res) {
+        ResponseEntity<Void> response = template.exchange("http://" + accountPrefix + "/login"
+                , HttpMethod.POST, new HttpEntity<>(user), Void.class);
+        createContext(user.getLogin(), req, res);
+    }
+    @PostMapping("/signup")
     public void signup(@RequestBody UserDto user, HttpServletRequest req,
                        HttpServletResponse res) {
+        System.out.println("Signup");
 
-        ResponseEntity<Void> response = template.exchange("/" + accountPrefix + "/users"
+        ResponseEntity<Void> response = template.exchange("http://" + accountPrefix + "/signup"
                 , HttpMethod.POST, new HttpEntity<>(user), Void.class);
-        if (response.getStatusCode().isSameCodeAs(HttpStatus.CREATED)){
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-            Authentication auth = new UsernamePasswordAuthenticationToken(user.getLogin(), null, authorities);
-            context.setAuthentication(auth);
-            securityContextRepository.saveContext(context, req, res);
-            HttpSession session = req.getSession(true);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
-            res.setStatus(HttpServletResponse.SC_CREATED);
-        } else {
-            throw new RuntimeException();
-        }
+        createContext(user.getLogin(), req, res);
     }
 
+    private void createContext(String login, HttpServletRequest req, HttpServletResponse res) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        Authentication auth = new UsernamePasswordAuthenticationToken(login, null, authorities);
+        context.setAuthentication(auth);
+        securityContextRepository.saveContext(context, req, res);
+        HttpSession session = req.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+        res.setStatus(HttpServletResponse.SC_CREATED);
+    }
 }

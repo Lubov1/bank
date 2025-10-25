@@ -52,5 +52,7 @@ public class CookieLoggingFilter implements Filter {
         } else {
             System.out.println("== No Set-Cookie in response ==");
         }
+        String auth = httpResponse.getHeader("Authorization");
+        System.out.println("== outgoing Authorization == "+ auth );
     }
 }

@@ -1,45 +1,80 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+
 <head>
+    <meta charset="UTF-8" />
     <title>Корзина товаров</title>
-    <meta charset="UTF-8">
-    <script language="JavaScript">
-        setInterval(() => {
-            var td = document.getElementById('exchange_rates');
-            fetch('http://localhost:8080/api/rates')
-                .then(response => response.json())
-                .then(json => {
-                    var table = '<table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">';
-                    table += '<tr><th colspan="3">Курсы валют по отношению к рублю</th></tr>';
-                    table += '<tr><th>Валюта</th><th>Обозначение</th><th>Курс</th></tr>';
-                    json.forEach(rate => {
-                        table += '<tr>';
-                        table += '<td>' + rate.title + '</td>';
-                        table += '<td>' + rate.name + '</td>';
-                        table += '<td>' + rate.value + '</td>';
-                        table += '</tr>';
-                    });
-                    table += '</table>';
-                    td.innerHTML = table;
-                })
-                .catch(error => td.innerHTML = 'Ошибка при получении данных курсов валют');
-        }, 1000);
+    <script defer>
+        let currencies = [];
+
+        async function loadRates() {
+            const td = document.getElementById('exchange_rates');
+            try {
+                // Сохраняем текущие выбранные значения перед обновлением
+                const currentSelections = {};
+                document.querySelectorAll('.currencies-select').forEach((sel, index) => {
+                    currentSelections[`select_${index}`] = sel.value;
+                });
+
+                const resp = await fetch('http://localhost:8083/api/public/exchange');
+                const json = await resp.json();
+
+                const rates = Object.values(json);
+                currencies = rates.map(r => r.name);
+
+                // Заполняем select элементы
+                document.querySelectorAll('.currencies-select').forEach((sel, index) => {
+                    const previousValue = currentSelections[`select_${index}`];
+                    sel.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+
+                    // Восстанавливаем предыдущее значение, если оно всё ещё существует в списке
+                    if (previousValue && currencies.includes(previousValue)) {
+                        sel.value = previousValue;
+                    } else if (currencies.length > 0) {
+                        // Иначе устанавливаем первое значение (USD)
+                        sel.value = currencies[0];
+                    }
+                });
+
+                // рисуем таблицу курсов
+                let table = '<table style="width:100%;margin:0 auto;border-radius:2%;padding:10px;background-color:whitesmoke;">';
+                table += '<tr><th colspan="3">Курсы валют по отношению к рублю</th></tr>';
+                table += '<tr><th>Валюта</th><th>Обозначение</th><th>Курс</th></tr>';
+                rates.forEach(r => {
+                    table += `<tr><td>${r.title}</td><td>${r.name}</td><td>${r.value}</td></tr>`;
+                });
+                table += '</table>';
+                td.innerHTML = table;
+
+                console.log("Currencies loaded:", currencies);
+            } catch (e) {
+                if (td) td.textContent = 'Ошибка при получении данных курсов валют: ' + e;
+                console.error("Error loading rates:", e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRates();
+            // Увеличиваем интервал до 30 секунд или больше, если не нужны частые обновления
+            setInterval(loadRates, 30000); // 30 секунд
+        });
     </script>
 </head>
 
 <body>
-<a href="/signup" style="float:right;">
+<a href="http://localhost:8083/signup" style="float:right;">
     <b>РЕГИСТРАЦИЯ &plus;</b>
 </a>
 <br>
-<a href="/logout" style="float:right;">
+<a href="http://localhost:8083/logout" style="float:right;">
     <b>ВЫЙТИ &cudarrr;</b>
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/editPassword'}">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/editPassword'}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+            <div th:replace="~{alerts :: alerts}"></div>
             <tr>
                 <td style="font-weight:bold;">Логин</td>
                 <td colspan="2" th:text="${login}"/>
@@ -63,7 +98,40 @@
         </form>
     </td>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/editUserAccounts'}">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/addAccount'}">
+        <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+            <tr>
+                <td style="font-weight:bold;">Добавить аккаунт</td>
+                <td>
+                    Валюта
+                    <select class="currencies-select" name="currency"></select>
+                </td>
+                <td style="text-align:right">
+                    <button>Добавить аккаунт</button>
+                </td>
+            </tr>
+        </table>
+        </form>
+    </td>
+    <tr><td style="padding:2px;">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/deleteAccount'}">
+            <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+                <tr>
+                    <td style="font-weight:bold;">Удалить аккаунт</td>
+                    <td>
+                        Валюта
+                        <select class="currencies-select" name="currency"></select>
+                    </td>
+                    <td style="text-align:right">
+                        <button>Удалить аккаунт</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </td>
+
+    <tr><td style="padding:2px;">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/editUserAccounts'}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
             <tr th:if="${userAccountsErrors!=null}" th:each="userAccountsError : ${userAccountsErrors}">
                 <td style="color:red;" th:text="${userAccountsError}"/>
@@ -77,17 +145,13 @@
             </tr>
             <tr>
                 <td style="font-weight:bold;">Дата рождения</td>
-                <td th:text="${birthdate}"/>
                 <td>
-                    <input name="birthdate" type="date" style="width:100%"/>
+                    <input type="date" name="birthdate" style="width:100%" required/>
                 </td>
             </tr>
             <tr th:each="account : ${accounts}">
-                <td style="font-weight:bold;" th:text="${account.getCurrency().getTitle()}"/>
-                <td th:text="${account.isExists() ? (account.getValue()+' '+account.getCurrency().name()) : ''}"/>
-                <td style="text-align:right">
-                    <input name="account" type="checkbox" th:checked="${account.isExists()}" th:value="${account.getCurrency().name()}"/>
-                </td>
+                <td style="font-weight:bold;" th:text="${account.getCurrency()}"></td>
+                <td th:text="${account.getBalance()+' '+account.getCurrency()}"></td>
             </tr>
             <tr>
                 <td style="text-align:right" colspan="3">
@@ -98,8 +162,9 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/сash'}">
+        <form method="post" th:action="${'http://localhost:8083/cash/'+login}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+
                 <tr th:if="${cashErrors!=null}" th:each="cashError : ${cashErrors}">
                     <td style="color:red;" th:text="${cashError}"/>
                 </tr>
@@ -107,12 +172,10 @@
                     <td style="font-weight:bold;">Наличные</td>
                     <td>
                         Валюта
-                        <select name="currency">
-                            <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
-                        </select>
+                        <select class="currencies-select" name="currency"></select>
                     </td>
                     <td>
-                        <input name="value" type="number" style="width:100%" required/>
+                        <input name="amount" type="number" style="width:100%" required/>
                     </td>
                     <td>
                     <td style="text-align:right">
@@ -124,8 +187,9 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/transfer'}">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/transfer'}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
+
                 <tr th:if="${transferErrors!=null}" th:each="transferError : ${transferErrors}">
                     <td style="color:red;" th:text="${transferError}"/>
                 </tr>
@@ -133,21 +197,22 @@
                     <td style="font-weight:bold;">Перевод себе</td>
                     <td>
                         Со счета
-                        <select name="from_currency">
-                            <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
-                        </select>
-                    </td>
+                            <select class="currencies-select" name="currencyFrom"></select>
+                    <td>
+<!--                    Со счета-->
+<!--                        <select id="currenciesSelect" name="currency"></select>-->
+<!--                        <div id="currencies" style="margin-top:6px;"></div>-->
+<!--                    </td>-->
+<!--                    </td>-->
                     <td>
                         На счет
-                        <select name="to_currency">
-                            <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
-                        </select>
+                            <select class="currencies-select" name="currencyTo"></select>
                     </td>
                     <td>
-                        <input name="value" type="number" style="width:100%" required/>
+                        <input name="amount" type="number" style="width:100%" required/>
                     </td>
                     <td style="text-align:right">
-                        <input hidden name="to_login" th:value="${login}"/>
+                        <input hidden name="loginTo" th:value="${login}"/>
                         <button>Перевести</button>
                     </td>
                 </tr>
@@ -155,7 +220,7 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'/user/'+login+'/transfer'}">
+        <form method="post" th:action="${'http://localhost:8083/'+login+'/transfer'}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
                 <tr th:if="${transferOtherErrors!=null}" th:each="transferOtherError : ${transferOtherErrors}">
                     <td style="color:red;" th:text="${transferOtherError}"/>
@@ -164,24 +229,21 @@
                     <td style="font-weight:bold;">Перевод другому</td>
                     <td>
                         Со счета
-                        <select name="from_currency">
-                            <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
-                        </select>
+                            <select class="currencies-select" name="currencyFrom"></select>
                     </td>
                     <td>
                         На счет
-                        <select name="to_currency">
-                            <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
-                        </select>
+                            <select class="currencies-select" name="currencyTo"></select>
                     </td>
                     <td>
-                        <input name="value" type="number" required/>
+                        <input name="amount" type="number" required/>
                     </td>
                     <td>
                         Кому
-                        <select name="to_login">
-                            <option th:each="user : ${users}" th:value="${user.getLogin()}" th:text="${user.getName()}"/>
-                        </select>
+                        <input name="loginTo" type="text" required/>
+<!--                        <select name="to_login">-->
+<!--                            <option th:each="user : ${users}" th:value="${user.getLogin()}" th:text="${user.getName()}"/>-->
+<!--                        </select>-->
                     </td>
                     <td style="text-align:right">
                         <button>Перевести</button>

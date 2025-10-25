@@ -1,0 +1,14 @@
+FROM maven:3.9-eclipse-temurin AS builder
+WORKDIR /build
+COPY . .
+RUN mvn -pl exchange-generator -am clean package -DskipTests
+RUN echo "=== JAR-files under /build ===" \
+ && find /build -type f -name "*.jar" -print \
+ || true
+
+FROM openjdk:21-bullseye
+
+COPY --from=builder /build/exchange-generator/target/exchange-generator.jar exchange-generator.jar
+
+EXPOSE 8096
+ENTRYPOINT ["java","-jar","/exchange-generator.jar"]

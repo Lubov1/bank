@@ -1,0 +1,14 @@
+FROM maven:3.9-eclipse-temurin AS builder
+WORKDIR /build
+COPY . .
+RUN mvn -pl cash-service -am clean package -DskipTests
+RUN echo "=== JAR-files under /build ===" \
+ && find /build -type f -name "*.jar" -print \
+ || true
+
+FROM openjdk:21-bullseye
+
+COPY --from=builder /build/cash-service/target/cash-service.jar cash-service.jar
+
+EXPOSE 8098
+ENTRYPOINT ["java","-jar","/cash-service.jar"]

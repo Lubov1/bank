@@ -12,37 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
 
-//@Component
-//public class RouteLoggingInterceptor implements HandlerInterceptor {
-//
-//    @Override
-//    public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
-//
-//        // Итоговый URL, куда Gateway реально пойдёт (после lb:// и резолва Consul)
-//        URI target = (URI) req.getAttribute(MvcUtils.GATEWAY_REQUEST_URL_ATTR);
-//
-//        // Исходный URL клиента (до фильтров/переписывания)
-//        Object original = req.getAttribute(MvcUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
-//
-//        // ID маршрута (из вашего application.yml → routes[id])
-//        Object routeId = req.getAttribute(MvcUtils.GATEWAY_ROUTE_ID_ATTR);
-//
-//        // Какой шаблон пути смэтчился (удобно для отладки предикатов Path)
-//        String pattern = (String) req.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-//
-//        System.out.printf("GW routeId=%s, pattern=%s, original=%s, target=%s%n",
-//                routeId, pattern, original, target);
-//
-//        // по желанию — отдать в ответ для дебага
-//        if (target != null) {
-//            res.setHeader("X-Target-URL", target.toString());
-//        }
-//        if (routeId != null) {
-//            res.setHeader("X-Route-Id", routeId.toString());
-//        }
-//        return true;
-//    }
-//}
 @Component
 class RouteLoggingInterceptor implements HandlerInterceptor {
 
@@ -58,6 +27,9 @@ class RouteLoggingInterceptor implements HandlerInterceptor {
         System.out.printf("GW routeId2=%s, original=%s, target=%s%n", routeId, original, target);
         if (target != null) res.setHeader("X-Target-URL", target.toString());
         if (routeId != null) res.setHeader("X-Route-Id", routeId.toString());
+        if (routeId != null) System.out.println("oauth2"+res.getHeader("Authorization"));
+
+
     }
 }
 

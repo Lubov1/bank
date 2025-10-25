@@ -1,0 +1,11 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          blocker:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: blocker
+            client-secret: blocker-secret
+            scope: profile,email

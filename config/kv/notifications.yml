@@ -1,40 +1,17 @@
 spring:
-  application:
-    name: notifications
-  config:
-    import: "consul:"
   security:
     oauth2:
       client:
-        provider:
-          keycloak:
-            token-uri: http://keycloak:8090/realms/master/protocol/openid-connect/token
         registration:
-          intershop:
+          notifications:
             authorization-grant-type: client_credentials
             provider: keycloak
-            client-id: bank
-            client-secret: bank-secret
+            client-id: notifications
+            client-secret: notifications-secret
             scope: profile,email
-  cloud:
-    consul:
-      config:
-        enabled: true
-        prefix: config
-        defaultContext: common
-        dataKey: data
-        format: YAML
-        watch:
-          enabled: true
-          delay: 1000
-      host: localhost
-      port: 8500
-
 mail:
   smtp:
     host: smtp.gmail.com
     port: 587
     email: notificationservice2004@gmail.com
-    password:
-server:
-  port: 8085
+    password: chdw jtsa ziaw mzrx

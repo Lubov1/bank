@@ -1,18 +1,76 @@
-#spring:
-#  config:
-#    import: "consul:"
-#  cloud:
-#    consul:
-#      config:
-#        enabled: true
-#        prefix: config
-#        defaultContext: common
-#        dataKey: data
-#        format: YAML
-#        watch:
-#          enabled: true
-#          delay: 1000
-#      host: localhost
-#      port: 8500
-#  application:
-#    name: gateway-api
+spring:
+  application:
+    name: gateway
+  config:
+    import: "consul:"
+  cloud:
+    consul:
+      config:
+        name: gateway
+        enabled: true
+        prefix: config
+        defaultContext: common
+        dataKey: data
+        format: YAML
+        watch:
+          enabled: true
+          delay: 1000
+      host: consul
+      port: 8500
+    gateway:
+      mvc:
+        discovery:
+          locator:
+            enabled: true
+            lower-case-service-id: true
+        routes:
+          - id: account-service-route
+            uri: lb://accounts
+            predicates:
+              - Path=/accounts/**
+            filters:
+              - StripPrefix=1
+          - id: notifications-service-route
+            uri: lb://notifications
+            predicates:
+              - Path=/notifications/**
+            filters:
+              - StripPrefix=1
+          - id: exchange-service-route
+            uri: lb://exchange
+            predicates:
+              - Path=/exchange/**
+            filters:
+              - StripPrefix=1
+          - id: cash-service-route
+            uri: lb://cash
+            predicates:
+              - Path=/cash/**
+            filters:
+              - StripPrefix=1
+          - id: blocker-service-route
+            uri: lb://blocker
+            predicates:
+              - Path=/blocker/**
+            filters:
+              - StripPrefix=1
+          - id: transfer-service-route
+            uri: lb://transfer
+            predicates:
+              - Path=/transfer/**
+            filters:
+              - StripPrefix=1
+          - id: exchange-generator-service-route
+            uri: lb://exchange-generator
+            predicates:
+              - Path=/exchange-generator/**
+            filters:
+              - StripPrefix=1
+
+
+server:
+  port: 8084
+  forward-headers-strategy: native
+
+customFilterChain:
+  needed: false

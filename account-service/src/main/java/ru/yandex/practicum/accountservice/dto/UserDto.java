@@ -1,7 +1,5 @@
 package ru.yandex.practicum.accountservice.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.time.LocalDate;

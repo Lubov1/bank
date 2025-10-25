@@ -1,39 +1,42 @@
 spring:
-  config:
-    import: "consul:"
   cloud:
     consul:
-      config:
-        enabled: true
-        prefix: config         # базовый путь в KV
-        defaultContext: common
-        dataKey: data          # имя ключа, где лежит сам YAML/props
-        format: YAML           # YAML | PROPERTIES | KEY_VALUE
-        watch:
-          enabled: true        # авто-обновление при изменениях
-          delay: 1000
-      host: localhost
-      port: 8500
       discovery:
         enabled: true
         register: true
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+      client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/master/protocol/openid-connect/token
 
 accounts:
   prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: gateway
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
+
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-logging:
-  level:
-    org.springframework.cloud.consul: DEBUG
-    org.springframework.web.client.RestTemplate: DEBUG
-    org.springframework.http.client: DEBUG
-    org.apache.hc.client5.http: DEBUG # на случай Apache HttpClient
-
-

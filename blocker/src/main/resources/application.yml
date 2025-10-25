@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: blocker
+  config:
+    import: "consul:"
+  cloud:
+    consul:
+      config:
+        enabled: true
+        prefix: config
+        defaultContext: common
+        dataKey: data
+        format: YAML
+        watch:
+          enabled: true
+          delay: 1000
+      host: consul
+      port: 8500
+
+
+server:
+  port: 8099
