@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: front
+  config:
+    import: ""
+  cloud:
+    consul:
+      enabled: false
+  discovery:
+    enabled: false
+
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: gateway
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
