@@ -7,14 +7,14 @@ import org.springframework.cloud.contract.spec.Contract
                 method 'POST'
                 urlPath(
                         $(consumer(regex('/[A-Za-z0-9._-]{3,32}/withdraw')),
-                                producer('/john-doe/withdraw'))
+                                producer('/johndoe/withdraw'))
                 )
               body(
                     amount: $(consumer(regex('-?\\d+(\\.\\d+)?')), producer('250.00')),
                     currency: $(consumer(regex('[A-Z]{3}')), producer('USD'))
               )
                 bodyMatchers {
-                    jsonPath('$.amount', byRegex(number()))   // число, не строка
+                    jsonPath('$.amount', byRegex(number()))
                     jsonPath('$.currency', byRegex('[A-Z]{3}'))
                 }
                 headers {
@@ -36,14 +36,14 @@ import org.springframework.cloud.contract.spec.Contract
                 method 'POST'
                 urlPath(
                         $(consumer(regex('/[A-Za-z0-9._-]{3,32}/deposit')),
-                                producer('/john-doe/deposit'))
+                                producer('/johndoe/deposit'))
                 )
                 body(
                     amount: $(consumer(regex('-?\\d+(\\.\\d+)?')), producer('250.00')),
                     currency: $(consumer(regex('[A-Z]{3}')), producer('USD'))
                 )
                 bodyMatchers {
-                    jsonPath('$.amount', byRegex(number()))   // число, не строка
+                    jsonPath('$.amount', byRegex(number()))
                     jsonPath('$.currency', byRegex('[A-Z]{3}'))
                 }
                 headers {

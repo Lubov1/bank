@@ -15,12 +15,9 @@ public class CookieLoggingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        // Преобразуем в HTTP-запрос и ответ
         if (request instanceof HttpServletRequest httpRequest) {
-            // Полный URI (без домена)
             String requestURI = httpRequest.getRequestURI();
 
-            // Только путь без query params
             String servletPath = httpRequest.getServletPath();
             System.out.println("requesst" + request.getLocalAddr() + ":" + request.getLocalPort()+ servletPath);
 
@@ -29,7 +26,6 @@ public class CookieLoggingFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // === Логируем входящие куки ===
         Cookie[] cookies = httpRequest.getCookies();
         if (cookies != null) {
             System.out.println("== Incoming Cookies ==");
@@ -41,10 +37,8 @@ public class CookieLoggingFilter implements Filter {
             System.out.println("== No incoming cookies ==");
         }
 
-        // Продолжаем выполнение цепочки
         chain.doFilter(request, response);
 
-        // === Логируем Set-Cookie заголовки из ответа ===
         String setCookie = httpResponse.getHeader("Set-Cookie");
         if (setCookie != null) {
             System.out.println("== Outgoing Set-Cookie header ==");

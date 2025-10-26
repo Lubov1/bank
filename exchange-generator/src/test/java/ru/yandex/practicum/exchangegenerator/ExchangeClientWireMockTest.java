@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         "exchange.base-url=http://localhost:${stubrunner.runningstubs.exchange.port}"
 })
 @AutoConfigureStubRunner(
-        ids = "ru.yandex.practicum:exchange:+:stubs", // + значит "последняя версия"
-        stubsMode = StubRunnerProperties.StubsMode.LOCAL // брать из ~/.m2
+        ids = "ru.yandex.practicum:exchange:+:stubs",
+        stubsMode = StubRunnerProperties.StubsMode.LOCAL
 )
 @ActiveProfiles("test")
 @Import({RestConfig.class})

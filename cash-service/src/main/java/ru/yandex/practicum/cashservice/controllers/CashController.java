@@ -3,12 +3,10 @@ package ru.yandex.practicum.cashservice.controllers;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
 import ru.yandex.practicum.cashservice.dto.Request;
 import ru.yandex.practicum.cashservice.services.CashService;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 @RestController
 public class CashController {
