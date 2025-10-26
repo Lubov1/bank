@@ -1,4 +1,4 @@
-package ru.yandex.practicum.frontui;
+package ru.yandex.practicum.frontui.transfer;
 
 
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,7 @@ import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRun
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import ru.yandex.practicum.frontui.RestConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.config.import=",
         "spring.cloud.consul.enabled=false",
         "spring.cloud.discovery.enabled=false",
-        "exchange.base-url=http://localhost:${stubrunner.runningstubs.exchange.port}"
+        "transfer.base-url=http://localhost:${stubrunner.runningstubs.transfer.port}"
 })
 @AutoConfigureStubRunner(
-        ids = "ru.yandex.practicum:cash-service:+:stubs",
+        ids = "ru.yandex.practicum:transfer:+:stubs",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL
 )
 @ActiveProfiles("test")
@@ -27,18 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableAutoConfiguration(exclude = {
         ru.yandex.practicum.bankautoconfigure.configuration.RestTemplateConfig.class
 })
-class ExchangeClientWireMockTest {
+class ExchangeClientWireMockTransferTest {
 
-    @Autowired ExchangeClient client;
-
-    @Test
-    void deposit() {
-        assertEquals(200, client.deposit());
-    }
+    @Autowired
+    ExchangeClientTransfer client;
 
     @Test
-    void withdraw() {
-        assertEquals(200, client.withdraw());
+    void transfer() {
+        assertEquals(200, client.transfer());
     }
+
 }
 

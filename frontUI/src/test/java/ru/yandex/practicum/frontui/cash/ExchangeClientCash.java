@@ -1,4 +1,4 @@
-package ru.yandex.practicum.frontui;
+package ru.yandex.practicum.frontui.cash;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -7,12 +7,12 @@ import org.springframework.web.client.RestClient;
 
 
 @Component
-public class ExchangeClient {
+public class ExchangeClientCash {
 
     private final RestClient restClient;
 
-    public ExchangeClient(RestClient.Builder builder,
-                          @Value("${exchange.base-url}") String baseUrl) {
+    public ExchangeClientCash(RestClient.Builder builder,
+                          @Value("${cash-service.base-url:http://localhost:9546}") String baseUrl) {
         this.restClient = builder.baseUrl(baseUrl).build();
     }
 
@@ -24,13 +24,13 @@ public class ExchangeClient {
                 .body("""
           {
             "amount": 250.00,
-            "currency": "EUR"
+            "currency": "USD"
           }
           """)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .toEntity(Void.class)
+                .toEntity(String.class)
                 .getStatusCode().value();
     }
     public int withdraw() {
@@ -39,12 +39,12 @@ public class ExchangeClient {
                 .body("""
           {
             "amount": 250.00,
-            "currency": "EUR"
+            "currency": "RUB"
           }
           """).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .toEntity(Void.class)
+                .toEntity(String.class)
                 .getStatusCode().value();
     }
 }

@@ -76,6 +76,13 @@
             <classifier>stubs</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.yandex.practicum</groupId>
+            <artifactId>transfer</artifactId>
+            <version>0.0.1</version>
+            <classifier>stubs</classifier>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

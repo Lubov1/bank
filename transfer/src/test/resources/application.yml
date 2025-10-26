@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: transfer
+  config:
+    import: ""
+  cloud:
+    consul:
+      enabled: false
+  discovery:
+    enabled: false
+
+blockerService:
+  needed: true
+notificationsService:
+  needed: true
+gateway:
+  prefix: gateway
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange

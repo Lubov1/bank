@@ -11,7 +11,6 @@
         async function loadRates() {
             const td = document.getElementById('exchange_rates');
             try {
-                // Сохраняем текущие выбранные значения перед обновлением
                 const currentSelections = {};
                 document.querySelectorAll('.currencies-select').forEach((sel, index) => {
                     currentSelections[`select_${index}`] = sel.value;
@@ -23,7 +22,6 @@
                 const rates = Object.values(json);
                 currencies = rates.map(r => r.name);
 
-                // Заполняем select элементы
                 document.querySelectorAll('.currencies-select').forEach((sel, index) => {
                     const previousValue = currentSelections[`select_${index}`];
                     sel.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
