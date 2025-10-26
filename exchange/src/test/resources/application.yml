@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: exchange
+  config:
+    import: ""
+  cloud:
+    consul:
+      enabled: false
+  discovery:
+    enabled: false

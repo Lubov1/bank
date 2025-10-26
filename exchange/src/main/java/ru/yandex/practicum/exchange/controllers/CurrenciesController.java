@@ -24,7 +24,7 @@ public class CurrenciesController {
 
     @GetMapping("/getCurrencies")
     public ResponseEntity<?> getCurrencies2() {
-        System.out.println("getting currencies");
+        System.out.println("getting currencies" + currenciesService.getCurrencies());
         return ResponseEntity.of(Optional.ofNullable(currenciesService.getCurrencies()));
     }
 }
