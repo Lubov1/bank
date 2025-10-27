@@ -3,7 +3,6 @@ package ru.yandex.practicum.accountservice.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.accountservice.dao.AccountDao;
 import ru.yandex.practicum.accountservice.dao.UserDao;
 import ru.yandex.practicum.accountservice.exceptions.AccountException;
@@ -27,7 +26,7 @@ public class AccountService {
     @Transactional
     public void deposit(String login, Currencies currency, BigDecimal amount) {
         UserDao userDao = userService.getUserByLogin(login);
-        AccountDao accountDao = accountRepository.findByUserAndCurrency(userDao, currency.name()).orElseThrow(()->new AccountNotFoundException(currency.name()));
+        AccountDao accountDao = accountRepository.findByUserAndCurrency(userDao, currency.name()).orElseThrow(()->new AccountNotFoundException(currency.name()+login));
         UserDao user = accountDao.getUser();
         if (!user.getLogin().equals(login)) {
             throw new AccountNotFoundException("account " + currency.name() + " not found");
@@ -40,15 +39,16 @@ public class AccountService {
     @Transactional
     public void withdraw(String login, Currencies currency, BigDecimal amount) {
         UserDao userDao = userService.getUserByLogin(login);
-        AccountDao accountDao = accountRepository.findByUserAndCurrency(userDao, currency.name()).orElseThrow(()->new AccountNotFoundException(currency.name()));
+        AccountDao accountDao = accountRepository.findByUserAndCurrency(userDao, currency.name()).orElseThrow(()->new AccountNotFoundException(currency.name() + login));
         UserDao user = accountDao.getUser();
         if (!user.getLogin().equals(login)) {
-            throw new AccountNotFoundException("account not found" + currency.name());
+            throw new AccountNotFoundException("account not found" + currency.name()+login+user.getLogin());
         }
         if (accountDao.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException("insufficient funds for account" + currency.name());
         }
         accountDao.setBalance(accountDao.getBalance().subtract(amount));
+
         System.out.println(amount + " was withdrawn from account" + accountDao.getCurrency() + " user" + user.getLogin());
     }
 
@@ -79,7 +79,7 @@ public class AccountService {
     public void deleteAccount(String login, Currencies currency) {
         UserDao userDao = userService.getUserByLogin(login);
         Optional<AccountDao> accountDao = accountRepository.findByUserAndCurrency(userDao, currency.name());
-        if (!accountDao.isPresent()) {
+        if (accountDao.isEmpty()) {
             throw new AccountException("Account with currency " + currency.name() + " not exists");
         }
 
