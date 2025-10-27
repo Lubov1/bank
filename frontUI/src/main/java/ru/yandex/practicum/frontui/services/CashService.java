@@ -3,11 +3,12 @@ package ru.yandex.practicum.frontui.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
+import ru.yandex.practicum.frontui.dto.CashRequest;
 import ru.yandex.practicum.frontui.exceptions.CashServiceResponseException;
+
+import java.math.BigDecimal;
 
 @Service
 public class CashService {
@@ -33,12 +34,11 @@ public class CashService {
 
     private void sendCashRequest(Currencies currency, Long amount, String login, String withdraw) {
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("currency", currency.name());
-        map.add("amount", amount);
 
-        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        HttpEntity<CashRequest> entity = new HttpEntity<>(new CashRequest(BigDecimal.valueOf(amount), currency), headers);
         try {
             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, cashPrefix, login, withdraw),
                     HttpMethod.POST, entity, Void.class);

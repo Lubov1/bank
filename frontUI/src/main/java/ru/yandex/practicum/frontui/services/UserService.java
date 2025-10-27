@@ -125,4 +125,10 @@ public class UserService {
 
         }
     }
+
+    public void logout() {
+        restTemplate.exchange("http://" + gatewayPrefix + "/logout"
+                , HttpMethod.POST, null, new ParameterizedTypeReference<>() {
+                });
+    }
 }

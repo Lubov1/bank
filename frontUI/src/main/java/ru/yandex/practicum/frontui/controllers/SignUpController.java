@@ -34,9 +34,9 @@ public class SignUpController {
         if (!user.getPassword().equals(user.getSecondPassword())) {
             br.rejectValue("secondPassword", "Mismatch", "Passwords don't match");
         }
-//        if (user.getBirthdate().isAfter(user.getBirthdate().minusYears(18))) {
-//            br.rejectValue("birthDate", "unacceptable", "User should be at least 18 years old");
-//        }
+        if (user.getBirthdate().isAfter(user.getBirthdate().minusYears(18))) {
+            br.rejectValue("birthDate", "unacceptable", "User should be at least 18 years old");
+        }
         if (br.hasErrors()) return "signup";
         try {
             userService.createUser(user);
@@ -54,6 +54,7 @@ public class SignUpController {
     User creds() {
         return new User();
     }
+
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("creds") User user, BindingResult br, Model model, HttpServletResponse servletResponse, HttpSession httpSession) {
         if (br.hasErrors()) return "signup";
@@ -66,5 +67,11 @@ public class SignUpController {
         model.addAttribute("login", user.getLogin());
         httpSession.setAttribute("login", user.getLogin());
         return "redirect:/main/"+user.getLogin();
+    }
+
+    @GetMapping("/{login}/logout")
+    public String logout(@PathVariable String login) {
+        userService.logout();
+        return "signup";
     }
 }

@@ -61,11 +61,8 @@
 </head>
 
 <body>
-<a href="http://localhost:8083/signup" style="float:right;">
-    <b>РЕГИСТРАЦИЯ &plus;</b>
-</a>
 <br>
-<a href="http://localhost:8083/logout" style="float:right;">
+<a th:href="@{http://localhost:8083/{login}/logout(login=${login})}" style="float:right;">
     <b>ВЫЙТИ &cudarrr;</b>
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">

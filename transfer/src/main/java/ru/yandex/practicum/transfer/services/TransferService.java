@@ -16,6 +16,7 @@ import ru.yandex.practicum.bankautoconfigure.currency.Currency;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 @Service
@@ -69,8 +70,14 @@ public class TransferService {
                 String.join("/","http:/", gatewayApiPrefix, exchangePrefix, "getCurrencies"),
                 HttpMethod.GET, new HttpEntity<>(h), new ParameterizedTypeReference<>() {});
         Map<String,Currency> exchangeCurrencies = resp.getBody();
+        if (exchangeCurrencies==null) {
+            throw new RuntimeException("ExchangeCurrencies is null");
+        }
+        if (exchangeCurrencies.get(currencies.getRight().name()).getValue().equals(BigDecimal.ZERO)) {
+            throw new RuntimeException("ExchangeCurrencies value " + currencies.getRight().name() + "  is zero");
+        }
         return amount
                 .multiply(exchangeCurrencies.get(currencies.getLeft().name()).getValue())
-                .divide(exchangeCurrencies.get(currencies.getRight().name()).getValue());
+                .divide(exchangeCurrencies.get(currencies.getRight().name()).getValue(), RoundingMode.HALF_EVEN);
     }
 }

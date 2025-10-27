@@ -12,19 +12,6 @@ import ru.yandex.practicum.frontui.services.CashService;
 @AllArgsConstructor
 public class CashController {
     private final CashService cashService;
-//    @PostMapping("/{login}/withdraw")
-//    public String withdraw(@PathVariable("login") String login, @RequestParam Long amount,
-//                           @RequestParam Currencies currency) {
-//        cashService.withdraw(login, amount, currency);
-//        return "redirect:main";
-//    }
-//
-//    @PostMapping("/{login}/deposit")
-//    public String deposit(@PathVariable("login") String login, @RequestParam Long amount,
-//                           @RequestParam Currencies currency) {
-//        cashService.deposit(login, amount, currency);
-//        return "redirect:/main/"+login;
-//    }
 
 
     @PostMapping("/cash/{login}")

@@ -5,10 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,6 +50,20 @@ public class LoginController {
         ResponseEntity<Void> response = template.exchange("http://" + accountPrefix + "/signup"
                 , HttpMethod.POST, new HttpEntity<>(user), Void.class);
         createContext(user.getLogin(), req, res);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest req, HttpServletResponse res) {
+        var s = req.getSession(false);
+        if (s != null) s.invalidate();
+
+        var cookie = ResponseCookie.from("JSESSIONID", "")
+                .maxAge(0).path("/")
+                .httpOnly(true).secure(true)
+                .sameSite("Lax")
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.noContent().build();
     }
 
     private void createContext(String login, HttpServletRequest req, HttpServletResponse res) {
