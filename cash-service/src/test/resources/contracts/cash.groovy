@@ -38,6 +38,7 @@ import org.springframework.cloud.contract.spec.Contract
                         $(consumer(regex('/[A-Za-z0-9._-]{3,32}/deposit')),
                                 producer('/johndoe/deposit'))
                 )
+                headers { contentType(applicationJson()); accept(textPlain())}
                 body(
                     amount: $(consumer(regex('-?\\d+(\\.\\d+)?')), producer('250.00')),
                     currency: $(consumer(regex('[A-Z]{3}')), producer('USD'))

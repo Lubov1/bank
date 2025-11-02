@@ -4,6 +4,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
+import ru.yandex.practicum.frontui.dto.CashRequest;
+
+import java.math.BigDecimal;
 
 
 @Component
@@ -21,12 +25,7 @@ public class ExchangeClientCash {
     public int deposit() {
         return restClient.post()
                 .uri("/login/deposit")
-                .body("""
-          {
-            "amount": 250.00,
-            "currency": "USD"
-          }
-          """)
+                .body(new CashRequest(BigDecimal.TEN, Currencies.CNY))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
@@ -36,12 +35,8 @@ public class ExchangeClientCash {
     public int withdraw() {
         return restClient.post()
                 .uri("/login/withdraw")
-                .body("""
-          {
-            "amount": 250.00,
-            "currency": "RUB"
-          }
-          """).contentType(MediaType.APPLICATION_JSON)
+                .body(new CashRequest(BigDecimal.TEN, Currencies.CNY))
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .toEntity(String.class)
