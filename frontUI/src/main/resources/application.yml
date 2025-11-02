@@ -18,6 +18,6 @@ spring:
       port: 8500
 
 server:
-  port: 8083
+  port: 8080
 customFilterChain:
   needed: false

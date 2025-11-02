@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/transfer/target/transfer.jar transfer.jar
 
-EXPOSE 8097
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/transfer.jar"]

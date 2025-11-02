@@ -17,33 +17,8 @@ spring:
       host: consul
       port: 8500
 
-#
-#
-#      discovery:
-#        enabled: true
-#        register: true
-#        prefer-ip-address: true
-#        health-check-path: /actuator/health
-#        health-check-interval: 10s
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uri: "http://localhost:8090/realms/master/protocol/openid-connect/certs"
-#      client:
-#        provider:
-#          keycloak:
-#            token-uri: http://localhost:8090/realms/master/protocol/openid-connect/token
-#
-#        registration:
-#          transfer:
-#            authorization-grant-type: client_credentials
-#            provider: keycloak
-#            client-id: transfer
-#            client-secret: transfer-secret
-#            scope: profile,email
 server:
-  port: 8097
+  port: 8080
 
 blockerService:
   needed: true

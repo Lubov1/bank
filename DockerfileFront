@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/frontUI/target/front.jar front.jar
 
-EXPOSE 8083
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/front.jar"]

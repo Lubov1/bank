@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/blocker/target/blocker.jar blocker.jar
 
-EXPOSE 8099
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/blocker.jar"]

@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/gatewayAPI/target/gateway.jar gateway.jar
 
-EXPOSE 8084
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/gateway.jar"]

@@ -18,5 +18,5 @@ spring:
       port: 8500
 
 server:
-  port: 8096
+  port: 8080
 

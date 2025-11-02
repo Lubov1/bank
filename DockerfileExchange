@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/exchange/target/exchange.jar exchange.jar
 
-EXPOSE 8095
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/exchange.jar"]

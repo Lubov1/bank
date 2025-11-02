@@ -10,5 +10,5 @@ FROM openjdk:21-bullseye
 
 COPY --from=builder /build/cash-service/target/cash-service.jar cash-service.jar
 
-EXPOSE 8098
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/cash-service.jar"]

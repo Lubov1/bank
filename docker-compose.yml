@@ -7,14 +7,14 @@ services:
       context: .
       dockerfile: DockerfileAccountService
     ports:
-      - "8082:8082"
+      - "8082:8080"
     depends_on:
       service-db:
         condition: service_healthy
       keycloak:
         condition: service_healthy
     environment:
-      - SERVER_PORT=8082
+      - SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/postgres
 #
   blocker:
@@ -24,9 +24,9 @@ services:
       context: .
       dockerfile: DockerfileBlocker
     ports:
-      - "8081:8081"
+      - "8081:8080"
     environment:
-      - SERVER_PORT=8081
+      - SERVER_PORT=8080
 
 
   cash-service:
@@ -36,9 +36,9 @@ services:
       context: .
       dockerfile: DockerfileCashService
     ports:
-      - "8098:8098"
+      - "8098:8080"
     environment:
-      - SERVER_PORT=8098
+      - SERVER_PORT=8080
 
 #
 
@@ -49,9 +49,9 @@ services:
       context: .
       dockerfile: DockerfileExchange
     ports:
-      - "8095:8095"
+      - "8095:8080"
     environment:
-      - SERVER_PORT=8095
+      - SERVER_PORT=8080
 
 
 
@@ -62,9 +62,9 @@ services:
       context: .
       dockerfile: DockerfileExchangeGenerator
     ports:
-      - "8096:8096"
+      - "8096:8080"
     environment:
-      - SERVER_PORT=8096
+      - SERVER_PORT=8080
 
 
   front:
@@ -74,9 +74,9 @@ services:
       context: .
       dockerfile: DockerfileFront
     ports:
-      - "8083:8083"
+      - "8083:8080"
     environment:
-      - SERVER_PORT=8083
+      - SERVER_PORT=8080
 
 
   gateway:
@@ -86,9 +86,9 @@ services:
       context: .
       dockerfile: DockerfileGatewayApi
     ports:
-      - "8084:8084"
+      - "8084:8080"
     environment:
-      - SERVER_PORT=8084
+      - SERVER_PORT=8080
 
 #
   notification-service:
@@ -98,9 +98,9 @@ services:
       context: .
       dockerfile: DockerfileNotificationService
     ports:
-      - "8085:8085"
+      - "8085:8080"
     environment:
-      - SERVER_PORT=8085
+      - SERVER_PORT=8080
 #
   transfer:
     image: transfer:0.0.1
@@ -109,9 +109,9 @@ services:
       context: .
       dockerfile: DockerfileTransfer
     ports:
-      - "8097:8097"
+      - "8097:8080"
     environment:
-      - SERVER_PORT=8097
+      - SERVER_PORT=8080
 
 
   service-db:
@@ -199,4 +199,3 @@ services:
 
 volumes:
   db-data:
-#  pgadmin-data:
