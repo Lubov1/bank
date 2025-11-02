@@ -1,5 +1,7 @@
 package ru.yandex.practicum.frontui.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -21,6 +23,8 @@ import java.util.List;
 
 @Service
 public class UserService {
+    Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Value("${accounts.prefix}")
     String accountPrefix;
     @Value("${gateway.prefix}")
@@ -37,7 +41,7 @@ public class UserService {
             ResponseEntity<Void> response = restTemplate.exchange("http://" + gatewayPrefix + "/signup"
                     , HttpMethod.POST, new HttpEntity<>(user), Void.class);
 
-            System.out.println(response.getBody() + "user is created");
+            logger.info(response.getBody() + "user is created");
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
         }
@@ -52,7 +56,7 @@ public class UserService {
     }
 
     public List<Account> getAccounts(String login) {
-        System.out.println("getting accounts");
+        logger.info("getting accounts");
         try {
             ResponseEntity<List<Account>> response = restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/getAccounts"
                     , HttpMethod.GET, null, new ParameterizedTypeReference<>() {
@@ -101,7 +105,7 @@ public class UserService {
                     HttpMethod.POST, entity, Void.class);
 
         } catch (RestClientResponseException ex) {
-            System.out.println("RestClientResponseException");
+            logger.info("RestClientResponseException");
             throw new AccountServiceResponseException(ex.getMessage(), login);
 
         }
@@ -120,7 +124,7 @@ public class UserService {
                     HttpMethod.POST, entity, Void.class);
 
         } catch (RestClientResponseException ex) {
-            System.out.println("RestClientResponseException");
+            logger.info("RestClientResponseException");
             throw new AccountServiceResponseException(ex.getMessage(), login);
 
         }

@@ -3,12 +3,10 @@ package ru.yandex.practicum.cashservice.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
+import ru.yandex.practicum.cashservice.dto.CashRequestDto;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -28,12 +26,9 @@ public class AccountService {
 
     public void withdraw(String login, BigDecimal amount, Currencies currency) throws IOException {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("currency", currency.name());
-        body.add("amount", amount.toString());
-
-        HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(body, headers);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CashRequestDto> entity =
+                new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
 
         ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "withdraw"),
                 HttpMethod.POST, entity, Void.class);
@@ -50,12 +45,10 @@ public class AccountService {
 
     public void deposit(String login, BigDecimal amount, Currencies currency) throws IOException {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("currency", currency.name());
-        body.add("amount", amount.toString());
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(body, headers);
+        HttpEntity<CashRequestDto> entity =
+                new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
 
         ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "deposit"),
                 HttpMethod.POST, entity, Void.class);

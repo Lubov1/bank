@@ -1,5 +1,7 @@
 package ru.yandex.practicum.bankautoconfigure.configuration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableWebSecurity
 @ConditionalOnClass(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository.class)
 public class RestTemplateConfig {
+    Logger logger = LoggerFactory.getLogger(RestTemplateConfig.class);
     private final String appName;
 
     public RestTemplateConfig(@Value("${spring.application.name}")String appName) {
@@ -60,7 +63,7 @@ public class RestTemplateConfig {
 
             return execution.execute(request, body);
         });
-        System.out.println("RestTemplate is initialized");
+        logger.info("RestTemplate is initialized");
         return rt;
     }
     @Bean
@@ -72,7 +75,7 @@ public class RestTemplateConfig {
     @Order(0)
     @ConditionalOnProperty(prefix = "customFilterChain", name = "needed", matchIfMissing=true)
     SecurityFilterChain defaultRsSecurity(HttpSecurity http) throws Exception {
-        System.out.println("CustomFilterChain is initialized");
+        logger.info("CustomFilterChain is initialized");
         return http
                 .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health").permitAll()
@@ -82,7 +85,7 @@ public class RestTemplateConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .oauth2Login(c -> c.disable())
+                .oauth2Login(AbstractHttpConfigurer::disable)
                 .build();
     }
 

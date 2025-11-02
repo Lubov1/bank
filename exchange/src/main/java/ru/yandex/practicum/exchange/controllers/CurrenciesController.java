@@ -1,5 +1,7 @@
 package ru.yandex.practicum.exchange.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.exchange.services.CurrenciesService;
@@ -10,6 +12,7 @@ import java.util.Optional;
 @RestController
 public class CurrenciesController {
     private CurrenciesService currenciesService;
+    Logger logger = LoggerFactory.getLogger(CurrenciesController.class);
 
     public CurrenciesController(CurrenciesService currenciesService) {
         this.currenciesService = currenciesService;
@@ -17,14 +20,14 @@ public class CurrenciesController {
 
     @PostMapping("/getCurrencies")
     public ResponseEntity<?> getCurrencies2(@RequestBody Map<String, Double> currencies) {
-        System.out.println("saving currencies");
+        logger.info("saving currencies");
         currenciesService.saveCurrencies(currencies);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getCurrencies")
     public ResponseEntity<?> getCurrencies2() {
-        System.out.println("getting currencies" + currenciesService.getCurrencies());
+        logger.info("getting currencies" + currenciesService.getCurrencies());
         return ResponseEntity.of(Optional.ofNullable(currenciesService.getCurrencies()));
     }
 }

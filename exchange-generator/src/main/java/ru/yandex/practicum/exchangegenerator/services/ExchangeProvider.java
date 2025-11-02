@@ -1,5 +1,7 @@
 package ru.yandex.practicum.exchangegenerator.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +14,8 @@ import java.util.Map;
 public class ExchangeProvider {
     RestTemplate restTemplate;
     ExchangeGenerator exchangeGenerator;
+    Logger logger = LoggerFactory.getLogger(ExchangeProvider.class);
+
 
     @Value("${gateway.prefix}")
     String gatewayPrefix;
@@ -24,7 +28,7 @@ public class ExchangeProvider {
     }
     @Scheduled(fixedRate = 60000)
     public void sendCurrencies() {
-        System.out.println("Sending exchange");
+        logger.info("Sending exchange");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String,Double>> entity = new HttpEntity<>(exchangeGenerator.getExchanges(), headers);

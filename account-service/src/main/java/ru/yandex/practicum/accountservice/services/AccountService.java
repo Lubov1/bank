@@ -1,6 +1,8 @@
 package ru.yandex.practicum.accountservice.services;
 
-import lombok.AllArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.accountservice.dao.AccountDao;
@@ -17,11 +19,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class AccountService {
     private final NotificationService notificationService;
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
     private UserService userService;
+    Logger logger = LoggerFactory.getLogger(AccountService.class);
+
+    public AccountService(NotificationService notificationService, AccountRepository accountRepository, UserService userService) {
+        this.notificationService = notificationService;
+        this.accountRepository = accountRepository;
+        this.userService = userService;
+    }
 
     @Transactional
     public void deposit(String login, Currencies currency, BigDecimal amount) {
@@ -32,7 +40,7 @@ public class AccountService {
             throw new AccountNotFoundException("account " + currency.name() + " not found");
         }
         accountDao.setBalance(accountDao.getBalance().add(amount));
-        System.out.println(amount + " was deposit from account" + accountDao.getCurrency() + " user" + user.getLogin());
+        logger.info(amount + " was deposit from account" + accountDao.getCurrency() + " user" + user.getLogin());
 
     }
 
@@ -49,7 +57,7 @@ public class AccountService {
         }
         accountDao.setBalance(accountDao.getBalance().subtract(amount));
 
-        System.out.println(amount + " was withdrawn from account" + accountDao.getCurrency() + " user" + user.getLogin());
+        logger.info(amount + " was withdrawn from account" + accountDao.getCurrency() + " user" + user.getLogin());
     }
 
     @Transactional
@@ -71,7 +79,7 @@ public class AccountService {
         account.setCurrency(currency.name());
         account.setBalance(BigDecimal.ZERO);
         accountRepository.save(account);
-        System.out.println("Account created: " + account);
+        logger.info("Account created: " + account);
         notificationService.sendNotification(login, "account " + currency.name() + " created");
     }
 
@@ -88,7 +96,7 @@ public class AccountService {
         }
 
         accountRepository.delete(accountDao.get());
-        System.out.println("Account is deleted: ");
+        logger.info("Account is deleted: ");
         notificationService.sendNotification(login, "account " + currency.name() + " is deleted");
     }
 

@@ -1,8 +1,6 @@
 package ru.yandex.practicum.cashservice.services;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.bankautoconfigure.configuration.BlockerService;
 import ru.yandex.practicum.bankautoconfigure.configuration.NotificationService;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;

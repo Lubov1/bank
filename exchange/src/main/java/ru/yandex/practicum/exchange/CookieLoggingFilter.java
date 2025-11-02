@@ -1,52 +1,26 @@
 package ru.yandex.practicum.exchange;
 
 import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 public class CookieLoggingFilter implements Filter {
+    Logger logger = LoggerFactory.getLogger(CookieLoggingFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         if (request instanceof HttpServletRequest httpRequest) {
-            String requestURI = httpRequest.getRequestURI();
-
             String servletPath = httpRequest.getServletPath();
-            System.out.println("requesst" + request.getLocalAddr() + ":" + request.getLocalPort()+ servletPath);
+            logger.info("requesst" + request.getLocalAddr() + ":" + request.getLocalPort()+ servletPath);
 
         }
-
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        Cookie[] cookies = httpRequest.getCookies();
-        if (cookies != null) {
-            System.out.println("== Incoming Cookies ==");
-            Arrays.stream(cookies).forEach(cookie ->
-                    System.out.printf("Cookie: %s=%s; Path=%s; Domain=%s\n",
-                            cookie.getName(), cookie.getValue(), cookie.getPath(), cookie.getDomain())
-            );
-        } else {
-            System.out.println("== No incoming cookies ==");
-        }
-
         chain.doFilter(request, response);
-
-        String setCookie = httpResponse.getHeader("Set-Cookie");
-        if (setCookie != null) {
-            System.out.println("== Outgoing Set-Cookie header ==");
-            System.out.println(setCookie);
-        } else {
-            System.out.println("== No Set-Cookie in response ==");
-        }
-        String auth = httpResponse.getHeader("Authorization");
-        System.out.println("== outgoing Authorization == "+ auth );
     }
 }

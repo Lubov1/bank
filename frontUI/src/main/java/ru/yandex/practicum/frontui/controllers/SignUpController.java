@@ -14,6 +14,8 @@ import ru.yandex.practicum.frontui.dto.UserData;
 import ru.yandex.practicum.frontui.exceptions.LoginException;
 import ru.yandex.practicum.frontui.services.UserService;
 
+import java.time.LocalDate;
+
 @Controller
 @AllArgsConstructor
 public class SignUpController {
@@ -34,8 +36,8 @@ public class SignUpController {
         if (!user.getPassword().equals(user.getSecondPassword())) {
             br.rejectValue("secondPassword", "Mismatch", "Passwords don't match");
         }
-        if (user.getBirthdate().isAfter(user.getBirthdate().minusYears(18))) {
-            br.rejectValue("birthDate", "unacceptable", "User should be at least 18 years old");
+        if (user.getBirthdate().isAfter(LocalDate.now().minusYears(18))) {
+            br.rejectValue("birthdate", "unacceptable", "User should be at least 18 years old");
         }
         if (br.hasErrors()) return "signup";
         try {

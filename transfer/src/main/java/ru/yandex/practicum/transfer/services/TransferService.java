@@ -1,18 +1,19 @@
 package ru.yandex.practicum.transfer.services;
 
 import com.nimbusds.jose.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import ru.yandex.practicum.bankautoconfigure.configuration.BlockerService;
 import ru.yandex.practicum.bankautoconfigure.configuration.NotificationService;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
 import ru.yandex.practicum.bankautoconfigure.currency.Currency;
+import ru.yandex.practicum.transfer.dto.TransferRequestDto;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -21,6 +22,8 @@ import java.util.Map;
 
 @Service
 public class TransferService {
+    Logger logger = LoggerFactory.getLogger(TransferService.class);
+
     @Value("${gateway.prefix}")
     private String gatewayApiPrefix;
 
@@ -29,9 +32,9 @@ public class TransferService {
 
     @Value("${exchange.prefix}")
     private String exchangePrefix;
-    private RestTemplate restTemplate;
-    private BlockerService blockerService;
-    private NotificationService notificationService;
+    private final RestTemplate restTemplate;
+    private final BlockerService blockerService;
+    private final NotificationService notificationService;
 
     public TransferService(@Autowired RestTemplate restTemplate, @Autowired BlockerService blockerService,
                            @Autowired NotificationService notificationService) {
@@ -43,7 +46,7 @@ public class TransferService {
     public void transfer(String login, String loginTo, Currencies currencyFrom, Currencies currencyTo, BigDecimal amount) throws IOException {
         BigDecimal amountTo = amount;
         if (!currencyFrom.equals(currencyTo)) {
-            System.out.println("Currencies are not equal");
+            logger.info("Currencies are not equal");
             amountTo = getAmount(Pair.of(currencyFrom,currencyTo), amount);
         }
         blockerService.check(login, amount);
@@ -53,15 +56,11 @@ public class TransferService {
 
     public void transfer(String login, String loginTo, Currencies currencyFrom, Currencies currencyTo, BigDecimal amountFrom, BigDecimal amountTo) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("loginTo", loginTo);
-        params.add("currencyFrom", currencyFrom);
-        params.add("currencyTo", currencyTo);
-        params.add("amountFrom", amountFrom);
-        params.add("amountTo", amountTo);
+
+        headers.setContentType(MediaType.APPLICATION_JSON);        TransferRequestDto transferRequestDto =
+                new TransferRequestDto(amountFrom, amountTo, currencyFrom, currencyTo, loginTo);
         restTemplate.exchange(String.join("/","http:/", gatewayApiPrefix, accountPrefix, login, "transfer"),
-                HttpMethod.POST, new HttpEntity<>(params, headers), new ParameterizedTypeReference<>() {});
+                HttpMethod.POST, new HttpEntity<>(transferRequestDto, headers), new ParameterizedTypeReference<>() {});
     }
 
     private BigDecimal getAmount(Pair<Currencies, Currencies> currencies, BigDecimal amount) {

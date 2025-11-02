@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.accountservice.dto.AccountDto;
+import ru.yandex.practicum.accountservice.dto.CashRequestDto;
+import ru.yandex.practicum.accountservice.dto.TransferRequestDto;
 import ru.yandex.practicum.accountservice.services.AccountService;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
 
@@ -17,25 +19,20 @@ public class AccountController {
 
     private AccountService accountService;
     @PostMapping("/{login}/deposit")
-    public ResponseEntity<?> deposit(@PathVariable String login, @RequestParam String amount,
-                                     @RequestParam Currencies currency) {
-        accountService.deposit(login, currency, BigDecimal.valueOf(Double.parseDouble(amount)));
+    public ResponseEntity<?> deposit(@PathVariable String login, @RequestBody CashRequestDto request) {
+        accountService.deposit(login, request.getCurrency(), BigDecimal.valueOf(Double.parseDouble(request.getAmount())));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{login}/withdraw")
-    public ResponseEntity<?> withdraw(@PathVariable String login, @RequestParam String amount,
-                                      @RequestParam Currencies currency) {
-        accountService.withdraw(login, currency, BigDecimal.valueOf(Double.parseDouble(amount)));
+    public ResponseEntity<?> withdraw(@PathVariable String login, @RequestBody CashRequestDto request) {
+        accountService.withdraw(login, request.getCurrency(), BigDecimal.valueOf(Double.parseDouble(request.getAmount())));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{login}/transfer")
-    public ResponseEntity<?> transfer(@PathVariable String login, @RequestParam BigDecimal amountFrom,
-                                      @RequestParam BigDecimal amountTo,
-                                      @RequestParam Currencies currencyFrom, @RequestParam Currencies currencyTo
-            , @RequestParam String loginTo) {
-        accountService.transfer(login,loginTo, currencyFrom, currencyTo, amountFrom, amountTo);
+    public ResponseEntity<?> transfer(@PathVariable String login, @RequestBody TransferRequestDto request) {
+        accountService.transfer(login,request.getLoginTo(), request.getCurrencyFrom(), request.getCurrencyTo(), request.getAmountFrom(), request.getAmountTo());
         return ResponseEntity.ok().build();
     }
 

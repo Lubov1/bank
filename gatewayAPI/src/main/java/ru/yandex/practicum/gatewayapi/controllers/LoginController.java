@@ -3,6 +3,8 @@ package ru.yandex.practicum.gatewayapi.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @RestController
 public class LoginController {
+    Logger logger = LoggerFactory.getLogger(LoginController.class);
     @Value("${accounts.prefix}")
     private String accountPrefix;
 
@@ -38,16 +41,16 @@ public class LoginController {
     @PostMapping("/login")
     public void login(@RequestBody Credentials user, HttpServletRequest req,
                       HttpServletResponse res) {
-        ResponseEntity<Void> response = template.exchange("http://" + accountPrefix + "/login"
+        template.exchange("http://" + accountPrefix + "/login"
                 , HttpMethod.POST, new HttpEntity<>(user), Void.class);
         createContext(user.getLogin(), req, res);
     }
     @PostMapping("/signup")
     public void signup(@RequestBody UserDto user, HttpServletRequest req,
                        HttpServletResponse res) {
-        System.out.println("Signup");
+        logger.info("Signup");
 
-        ResponseEntity<Void> response = template.exchange("http://" + accountPrefix + "/signup"
+        template.exchange("http://" + accountPrefix + "/signup"
                 , HttpMethod.POST, new HttpEntity<>(user), Void.class);
         createContext(user.getLogin(), req, res);
     }

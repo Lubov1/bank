@@ -3,6 +3,8 @@ package ru.yandex.practicum.notificationservice.services;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import java.util.Properties;
 
 @Service
 public class NotificationService {
+    Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
     @Value("${mail.smtp.host}")
     private String smtpHost;
     @Value("${mail.smtp.port}")
@@ -46,7 +50,7 @@ public class NotificationService {
             // Отправка
             Transport.send(emailMessage);
 
-            System.out.println("Письмо отправлено успешно!");
+            logger.info("Письмо отправлено успешно!");
         } catch (MessagingException e) {
             throw new RuntimeException(e.getMessage());
         }
