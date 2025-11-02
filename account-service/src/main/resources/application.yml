@@ -22,3 +22,5 @@ server:
   port: 8082
 
 emailService: notifications
+customFilterChain:
+  needed: false

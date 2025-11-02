@@ -71,6 +71,3 @@ spring:
 server:
   port: 8084
   forward-headers-strategy: native
-
-customFilterChain:
-  needed: false

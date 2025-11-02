@@ -38,18 +38,29 @@ public class UserService {
 
     public void createUser(UserData user) {
         try {
-            ResponseEntity<Void> response = restTemplate.exchange("http://" + gatewayPrefix + "/signup"
-                    , HttpMethod.POST, new HttpEntity<>(user), Void.class);
+            logger.info("user {} is creating", user.getLogin());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(List.of(MediaType.ALL));
 
-            logger.info(response.getBody() + "user is created");
+            HttpEntity<UserData> entity = new HttpEntity<>(user, headers);
+            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/signup")
+                    , HttpMethod.POST, entity, Void.class);
+
+            logger.info("user {} is created", user.getLogin());
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
         }
     }
     public void login(User user) {
         try {
-             restTemplate.exchange("http://" + gatewayPrefix + "/login"
-                    , HttpMethod.POST, new HttpEntity<>(user), Void.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(List.of(MediaType.ALL));
+
+            HttpEntity<User> entity = new HttpEntity<>(user, headers);
+             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/login")
+                    , HttpMethod.POST, entity, Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
         }
@@ -131,7 +142,7 @@ public class UserService {
     }
 
     public void logout() {
-        restTemplate.exchange("http://" + gatewayPrefix + "/logout"
+        restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/logout")
                 , HttpMethod.POST, null, new ParameterizedTypeReference<>() {
                 });
     }
