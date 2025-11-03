@@ -1,12 +1,4 @@
 spring:
-  cloud:
-    consul:
-      discovery:
-        enabled: true
-        register: true
-        prefer-ip-address: true
-        health-check-path: /actuator/health
-        health-check-interval: 10s
   security:
     oauth2:
       resourceserver:

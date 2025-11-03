@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
@@ -44,7 +43,6 @@ public class RestTemplateConfig {
         return manager;
     }
     @Bean
-    @LoadBalanced
     @ConditionalOnMissingBean
     public RestTemplate restTemplate(AuthorizedClientServiceOAuth2AuthorizedClientManager manager) {
         RestTemplate rt = new RestTemplate();

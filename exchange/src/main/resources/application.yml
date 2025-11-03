@@ -1,22 +1,17 @@
 spring:
   application:
     name: exchange
-  config:
-    import: "consul:"
-  cloud:
-    consul:
-      config:
-        enabled: true
-        prefix: config
-        defaultContext: common
-        dataKey: data
-        format: YAML
-        watch:
-          enabled: true
-          delay: 1000
-      host: consul
-      port: 8500
 
+  security:
+    oauth2:
+      client:
+        registration:
+          exchange:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: exchange
+            client-secret: exchange-secret
+            scope: profile,email
 server:
   port: 8080
 

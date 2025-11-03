@@ -22,6 +22,7 @@ public class CurrenciesController {
     public ResponseEntity<?> getCurrencies2(@RequestBody Map<String, Double> currencies) {
         logger.info("saving currencies");
         currenciesService.saveCurrencies(currencies);
+        logger.info("currencies saved {}", currencies);
         return ResponseEntity.ok().build();
     }
 

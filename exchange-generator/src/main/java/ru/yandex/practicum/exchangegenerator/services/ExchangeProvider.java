@@ -34,5 +34,6 @@ public class ExchangeProvider {
         HttpEntity<Map<String,Double>> entity = new HttpEntity<>(exchangeGenerator.getExchanges(), headers);
         restTemplate.exchange("http://" + gatewayPrefix + "/"+ exchangePrefix +"/getCurrencies",
                 HttpMethod.POST, entity, Void.class);
+        logger.info("exchanges are sent");
     }
 }
