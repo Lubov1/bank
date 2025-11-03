@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:24.0.3
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
+          command: ["/bin/bash","-lc"]
+          args:
+            - >
+              /opt/keycloak/bin/kc.sh start-dev --import-realm &
+              pid=$!;
+              /opt/keycloak/keycloak-setup.sh;
+              wait $pid
+          volumeMounts:
+            - name: keycloak-scripts
+              mountPath: /opt/keycloak/keycloak-setup.sh
+              subPath: keycloak-setup.sh
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /realms/master, port: 8080 }
+            initialDelaySeconds: 140
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 30
+
+          livenessProbe:
+            httpGet: { path: /realms/master, port: 8080 }
+            initialDelaySeconds: 140
+            periodSeconds: 10
+            failureThreshold: 6
+      volumes:
+        - name: keycloak-scripts
+          configMap:
+            name: keycloak-scripts
+            defaultMode: 0755

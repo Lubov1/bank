@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-scripts
+data:
+  keycloak-setup.sh: |
+    {{ .Files.Get "config/keycloak-setup.sh" | nindent 4 }}

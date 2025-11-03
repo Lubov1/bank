@@ -1,0 +1,34 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+      client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/master/protocol/openid-connect/token
+
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: "gateway:8080"
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

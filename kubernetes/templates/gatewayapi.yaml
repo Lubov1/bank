@@ -1,0 +1,101 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gateway
+  labels:
+    app.kubernetes.io/name: gateway
+spec:
+  parentRefs:
+    - name: gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /accounts
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: accounts
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /notifications
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: notifications
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /exchange
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: exchange
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /cash
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: cash
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /blocker
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: blocker
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /transfer
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: transfer
+          port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /exchange-generator
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: exchange-generator
+          port: 8080
