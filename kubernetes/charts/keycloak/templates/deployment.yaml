@@ -18,7 +18,8 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:24.0.3
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           env:
             - name: KEYCLOAK_ADMIN
               value: "admin"
@@ -38,14 +39,14 @@ spec:
               readOnly: true
           readinessProbe:
             httpGet: { path: /realms/master, port: 8080 }
-            initialDelaySeconds: 140
+            initialDelaySeconds: 160
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 30
 
           livenessProbe:
             httpGet: { path: /realms/master, port: 8080 }
-            initialDelaySeconds: 140
+            initialDelaySeconds: 160
             periodSeconds: 10
             failureThreshold: 6
       volumes:

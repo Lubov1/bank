@@ -29,7 +29,7 @@ spec:
               done
               echo "Keycloak is ready"
       containers:
-        - name: {{ include "app.name" . }}
+        - name: {{ include "app.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:

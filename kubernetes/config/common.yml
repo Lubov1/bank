@@ -14,7 +14,7 @@ accounts:
 exchange:
   prefix: exchange
 gateway:
-  prefix: "gateway:8080"
+  prefix: gateway
 exchange-generator:
   prefix: exchange-generator
 cash:

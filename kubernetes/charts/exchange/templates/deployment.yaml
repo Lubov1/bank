@@ -29,11 +29,12 @@ spec:
               done
               echo "Keycloak is ready"
       containers:
-        - name: {{ include "app.name" . }}
+        - name: {{ include "app.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           env:
             - name: SPRING_CONFIG_IMPORT
               value: "optional:/config/application-global.yml,optional:/config/application-service.yml"
