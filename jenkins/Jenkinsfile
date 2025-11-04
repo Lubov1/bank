@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
+        GITHUB_USERNAME = credentials('GITHUB_USERNAME')
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Build & Unit Tests') {
+            parallel {
+                stage('Accounts') {
+                    steps {
+                        dir('accounts-service') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+                stage('Blocker Service') {
+                    steps {
+                        dir('blocker') {
+                            sh 'mvn clean test'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build And Push Docker Images') {
+            steps {
+                sh """
+                chmod +x ./build-images.sh
+                          ./build-images.sh
+                """
+            }
+        }
+
+
+        stage('Manual Approval for PROD') {
+            steps {
+                input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
+            }
+        }
+
+        stage('Helm Deploy to PROD') {
+            steps {
+                sh """
+                helm install myapp ./kubernetes
+                """
+            }
+        }
+    }
+}
