@@ -16,7 +16,7 @@
                     currentSelections[`select_${index}`] = sel.value;
                 });
 
-                const resp = await fetch('http://localhost:8083/api/public/exchange');
+                const resp = await fetch('/api/public/exchange');
                 const json = await resp.json();
 
                 const rates = Object.values(json);
@@ -62,12 +62,12 @@
 
 <body>
 <br>
-<a th:href="@{http://localhost:8083/{login}/logout(login=${login})}" style="float:right;">
+<a th:href="@{|/${login}/logout(login=${login})}" style="float:right;">
     <b>ВЫЙТИ &cudarrr;</b>
 </a>
 <table style="width:70%;margin-left:auto;margin-right:auto;">
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/editPassword'}">
+        <form method="post" th:action="@{|/${login}/editPassword|}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
             <div th:replace="~{alerts :: alerts}"></div>
             <tr>
@@ -93,7 +93,7 @@
         </form>
     </td>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/addAccount'}">
+        <form method="post" th:action="@{|/${login}/addAccount|}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
             <tr>
                 <td style="font-weight:bold;">Добавить аккаунт</td>
@@ -109,7 +109,7 @@
         </form>
     </td>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/deleteAccount'}">
+        <form method="post" th:action="@{|/${login}/deleteAccount|}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
                 <tr>
                     <td style="font-weight:bold;">Удалить аккаунт</td>
@@ -126,7 +126,7 @@
     </td>
 
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/editUserAccounts'}">
+        <form method="post" th:action="@{|/${login}/editUserAccounts|}">
         <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
             <tr th:if="${userAccountsErrors!=null}" th:each="userAccountsError : ${userAccountsErrors}">
                 <td style="color:red;" th:text="${userAccountsError}"/>
@@ -157,7 +157,7 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/cash/'+login}">
+        <form method="post" th:action="@{|/cash/${login}|}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
 
                 <tr th:if="${cashErrors!=null}" th:each="cashError : ${cashErrors}">
@@ -182,7 +182,7 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/transfer'}">
+        <form method="post" th:action="@{|/${login}/transfer|}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
 
                 <tr th:if="${transferErrors!=null}" th:each="transferError : ${transferErrors}">
@@ -215,7 +215,7 @@
         </form>
     </td></tr>
     <tr><td style="padding:2px;">
-        <form method="post" th:action="${'http://localhost:8083/'+login+'/transfer'}">
+        <form method="post" th:action="@{|/${login}/transfer|}">
             <table style="width:100%;margin-left:auto;margin-right:auto;border-radius:2%;padding:10px;background-color:whitesmoke;">
                 <tr th:if="${transferOtherErrors!=null}" th:each="transferOtherError : ${transferOtherErrors}">
                     <td style="color:red;" th:text="${transferOtherError}"/>
