@@ -4,4 +4,4 @@ metadata:
   name: keycloak-scripts
 data:
   keycloak-setup.sh: |
-    {{ .Files.Get "config/keycloak-setup.sh" | nindent 4 }}
+    {{ .Files.Get "jenkins_kubeconfig.yaml/keycloak-setup.sh" | nindent 4 }}
