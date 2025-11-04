@@ -22,6 +22,7 @@ build_image() {
   local image="$1"
   local dockerfile="$2"
 
+
   echo "🧱 Building ${image}:${TAG} (Dockerfile=${dockerfile}, platform=${PLATFORM})"
   docker build \
     -t "${image}:${TAG}" \
@@ -32,7 +33,9 @@ build_image() {
 
   # Если указан реестр — пушим туда
   if [[ -n "${DOCKER_REGISTRY}" ]]; then
-    local target="${DOCKER_REGISTRY}/${image}:${TAG}"
+    local safe_registry
+    safe_registry=$(echo "${DOCKER_REGISTRY}" | tr '[:upper:]' '[:lower:]')
+    local target="${safe_registry}/${image}:${TAG}"
     echo "📤 Pushing ${target}"
     docker tag "${image}:${TAG}" "${target}"
     docker push "${target}"
