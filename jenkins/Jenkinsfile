@@ -29,19 +29,27 @@ pipeline {
 
         stage('Build And Push Docker Images') {
             steps {
-                sh """
-                chmod +x ./build-images.sh
-                          ./build-images.sh
-                """
+//                 sh """
+//                 chmod +x ./build-images.sh
+//                           ./build-images.sh
+//                 """
+                withCredentials([string(credentialsId: 'ghcr-token', variable: 'GHCR_TOKEN')]) {
+                    sh '''
+                        echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
+                        export DOCKER_REGISTRY=ghcr.io/lubov1
+                        chmod +x build-images.sh
+                        ./build-images.sh
+                    '''
+                }
             }
         }
 
 
-        stage('Manual Approval for PROD') {
-            steps {
-                input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
-            }
-        }
+//         stage('Manual Approval for PROD') {
+//             steps {
+//                 input message: 'Deploy to PROD environment?', ok: 'Yes, deploy'
+//             }
+//         }
 
         stage('Helm Deploy to PROD') {
             steps {
