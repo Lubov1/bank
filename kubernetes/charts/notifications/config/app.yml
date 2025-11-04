@@ -1,0 +1,17 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          notifications:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: notifications
+            client-secret: notifications-secret
+            scope: profile,email
+mail:
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+    email: notificationservice2004@gmail.com
+    password: chdw jtsa ziaw mzrx

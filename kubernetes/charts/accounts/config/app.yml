@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: accounts
+  datasource:
+    url: jdbc:postgresql://postgresql:5432/postgres
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          accounts:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: accounts
+            client-secret: accounts-secret
+            scope: profile,email
+
+
+blockerService:
+  needed: true
+notificationsService:
+  needed: true
