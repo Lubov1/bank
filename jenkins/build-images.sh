@@ -5,7 +5,7 @@ set -euo pipefail
 TAG="${TAG:-0.0.1}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-ghcr.io/Lubov1}"
+DOCKER_REGISTRY="${DOCKER_REGISTRY:-ghcr.io/lubov1}"
 
 IMAGES=(
   "exchange:DockerfileExchange"
