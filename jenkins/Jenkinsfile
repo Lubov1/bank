@@ -33,7 +33,7 @@ pipeline {
 //                 chmod +x ./build-images.sh
 //                           ./build-images.sh
 //                 """
-                withCredentials([string(credentialsId: 'ghcr-token', variable: 'GHCR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                     sh '''
                         echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
                         export DOCKER_REGISTRY=ghcr.io/lubov1
