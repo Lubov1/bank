@@ -12,16 +12,16 @@ pipeline {
             parallel {
                 stage('Accounts') {
                     steps {
-                        dir('account-service') {
-                            sh 'mvn -pl account-service -am clean test'
-                        }
+                        sh """
+                            mvn -pl account-service -am clean test
+                           """
                     }
                 }
                 stage('Blocker Service') {
                     steps {
-                        dir('blocker') {
-                            sh 'mvn -pl blocker -am clean test'
-                        }
+                        sh """
+                            mvn -pl blocker -am clean test
+                        """
                     }
                 }
             }
