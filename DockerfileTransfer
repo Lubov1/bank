@@ -6,7 +6,7 @@ RUN echo "=== JAR-files under /build ===" \
  && find /build -type f -name "*.jar" -print \
  || true
 
-FROM openjdk:21-bullseye
+FROM openjdk:25-ea-21-bullseye
 
 COPY --from=builder /build/transfer/target/transfer.jar transfer.jar
 
