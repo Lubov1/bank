@@ -213,7 +213,7 @@ pipeline {
             steps {
                 sh """
                 export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
-                helm lint .
+                helm lint ./kubernetes
                 """
             }
         }
