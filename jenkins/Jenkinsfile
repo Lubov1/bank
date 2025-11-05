@@ -19,7 +19,8 @@ pipeline {
                 'blocker',
                 'cash',
                 'notifications',
-                'transfer'
+                'transfer',
+                'no'
             ],
             description: 'Select which service to build & deploy'
         )
@@ -155,6 +156,17 @@ pipeline {
                     docker build -t transfer:${TAG} -f DockerfileTransfer --platform ${PLATFORM} .
                     docker tag transfer:${TAG} ${DOCKER_REGISTRY}/transfer:${TAG}
                     docker push ${DOCKER_REGISTRY}/transfer:${TAG}
+                '''
+            }
+        }
+
+        stage('No') {
+            when {
+                expression { params.SERVICE == 'no' }
+            }
+            steps {
+                sh '''
+                    echo ">>> Stage skipped"
                 '''
             }
         }
