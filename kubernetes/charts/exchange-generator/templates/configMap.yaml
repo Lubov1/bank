@@ -4,4 +4,4 @@ metadata:
   name: {{ include "app.fullname" . }}-config
 data:
   application.yaml: |
-    {{ .Files.Get "jenkins_kubeconfig.yaml/app.yml" | nindent 4 }}
+    {{ .Files.Get "config/app.yml" | nindent 4 }}

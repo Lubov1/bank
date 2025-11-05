@@ -4,4 +4,4 @@ metadata:
   name: global-config
 data:
   application.yaml: |
-    {{ .Files.Get "jenkins_kubeconfig.yaml/common.yml" | nindent 4 }}
+    {{ .Files.Get "config/common.yml" | nindent 4 }}
