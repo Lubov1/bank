@@ -53,14 +53,17 @@ stage('Kube Preflight') {
           export KUBECONFIG=/root/.kube/config
             set -eux
 
-            echo ">>> kubeconfig in use: $KUBECONFIG"
-            kubectl version
+//             echo ">>> kubeconfig in use: $KUBECONFIG"
+//             kubectl version
+
+            kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
 
             echo ">>> Current context:"
             kubectl config current-context
+            kubectl config view --minify
 
-//             echo ">>> Server URL of current context:"
-//             kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
+            kubectl get --raw /version -v=8 || true
+
 
             echo ">>> Cluster info:"
             kubectl cluster-info
