@@ -16,30 +16,39 @@ type: application
 dependencies:
   - name: front
     version: 0.1.0
+    repository: "file://../charts/front"
     condition: front.enabled
   - name: notifications
     version: 0.1.0
+    repository: "file://../charts/notifications"
     condition: notifications.enabled
   - name: accounts
     version: 0.1.0
+    repository: "file://../charts/accounts"
     condition: accounts.enabled
   - name: exchange
     version: 0.1.0
+    repository: "file://../charts/exchange"
     condition: exchange.enabled
   - name: keycloak
     version: 0.1.0
+    repository: "file://../charts/keycloak"
     condition: keycloak.enabled
   - name: transfer
     version: 0.1.0
+    repository: "file://../charts/transfer"
     condition: transfer.enabled
   - name: blocker
     version: 0.1.0
+    repository: "file://../charts/blocker"
     condition: blocker.enabled
   - name: cash
     version: 0.1.0
+    repository: "file://../charts/cash"
     condition: cash.enabled
   - name: exchange-generator
     version: 0.1.0
+    repository: "file://../charts/exchange-generator"
     condition: exchangeGenerator.enabled
 
 # This is the chart version. This version number should be incremented each time you make changes
