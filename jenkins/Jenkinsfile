@@ -53,9 +53,6 @@ stage('Kube Preflight') {
           export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
             set -eux
 
-//             echo ">>> kubeconfig in use: $KUBECONFIG"
-//             kubectl version
-
             kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
 
             echo ">>> Current context:"
