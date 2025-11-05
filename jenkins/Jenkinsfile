@@ -4,161 +4,159 @@ pipeline {
     environment {
         DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
         GITHUB_USERNAME = credentials('GITHUB_USERNAME')
-        IMAGE_TAG       = "${env.BUILD_NUMBER}"
         TAG = "0.0.1"
         PLATFORM = "linux/amd64"
         DOCKER_REGISTRY = "ghcr.io/lubov1"
     }
-        parameters {
-            choice(
-                name: 'SERVICE',
-                choices: [
-                    'all',
-                    'exchange',
-                    'exchange-generator',
-                    'accounts',
-                    'front',
-                    'blocker',
-                    'cash',
-                    'notifications',
-                    'transfer'
-                ],
-                description: 'Select which service to build & deploy'
-            )
+    parameters {
+        choice(
+            name: 'SERVICE',
+            choices: [
+                'all',
+                'exchange',
+                'exchange-generator',
+                'accounts',
+                'front',
+                'blocker',
+                'cash',
+                'notifications',
+                'transfer'
+            ],
+            description: 'Select which service to build & deploy'
+        )
+    }
+
+    stages {
+        stage('Build & Unit Tests') {
+            parallel {
+                stage('Accounts') {
+                    steps {
+                        sh """
+                            mvn -pl account-service -am clean test
+                           """
+                    }
+                }
+                stage('Blocker Service') {
+                    steps {
+                        sh """
+                            mvn -pl blocker -am clean test
+                        """
+                    }
+                }
+            }
         }
 
-        stages {
-                stage('Build & Unit Tests') {
-                    parallel {
-                        stage('Accounts') {
-                            steps {
-                                sh """
-                                    mvn -pl account-service -am clean test
-                                   """
-                            }
-                        }
-                        stage('Blocker Service') {
-                            steps {
-                                sh """
-                                    mvn -pl blocker -am clean test
-                                """
-                            }
-                        }
-                    }
-                }
-
-            stage('Login to GHCR') {
-                steps {
-                    withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
-                        sh '''
-                            echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
-                        '''
-                    }
-                }
-            }
-
-            stage('Build Exchange') {
-                when {
-                    expression { params.SERVICE == 'exchange' || params.SERVICE == 'all' }
-                }
-                steps {
+        stage('Login to GHCR') {
+            steps {
+                withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                     sh '''
-                        docker build -t exchange:${TAG} -f DockerfileExchange --platform ${PLATFORM} .
-                        docker tag exchange:${TAG} ${DOCKER_REGISTRY}/exchange:${TAG}
-                        docker push ${DOCKER_REGISTRY}/exchange:${TAG}
+                        echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
                     '''
                 }
             }
+        }
 
-            stage('Build Exchange Generator') {
-                when {
-                    expression { params.SERVICE == 'exchange-generator' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t exchange-generator:${TAG} -f DockerfileExchangeGenerator --platform ${PLATFORM} .
-                        docker tag exchange-generator:${TAG} ${DOCKER_REGISTRY}/exchange-generator:${TAG}
-                        docker push ${DOCKER_REGISTRY}/exchange-generator:${TAG}
-                    '''
-                }
+        stage('Build Exchange') {
+            when {
+                expression { params.SERVICE == 'exchange' || params.SERVICE == 'all' }
             }
-
-            stage('Build Accounts') {
-                when {
-                    expression { params.SERVICE == 'accounts' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t accounts:${TAG} -f DockerfileAccountService --platform ${PLATFORM} .
-                        docker tag accounts:${TAG} ${DOCKER_REGISTRY}/accounts:${TAG}
-                        docker push ${DOCKER_REGISTRY}/accounts:${TAG}
-                    '''
-                }
+            steps {
+                sh '''
+                    docker build -t exchange:${TAG} -f DockerfileExchange --platform ${PLATFORM} .
+                    docker tag exchange:${TAG} ${DOCKER_REGISTRY}/exchange:${TAG}
+                    docker push ${DOCKER_REGISTRY}/exchange:${TAG}
+                '''
             }
+        }
 
-            stage('Build Front') {
-                when {
-                    expression { params.SERVICE == 'front' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t front:${TAG} -f DockerfileFront --platform ${PLATFORM} .
-                        docker tag front:${TAG} ${DOCKER_REGISTRY}/front:${TAG}
-                        docker push ${DOCKER_REGISTRY}/front:${TAG}
-                    '''
-                }
+        stage('Build Exchange Generator') {
+            when {
+                expression { params.SERVICE == 'exchange-generator' || params.SERVICE == 'all' }
             }
-
-            stage('Build Blocker') {
-                when {
-                    expression { params.SERVICE == 'blocker' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t blocker:${TAG} -f DockerfileBlocker --platform ${PLATFORM} .
-                        docker tag blocker:${TAG} ${DOCKER_REGISTRY}/blocker:${TAG}
-                        docker push ${DOCKER_REGISTRY}/blocker:${TAG}
-                    '''
-                }
+            steps {
+                sh '''
+                    docker build -t exchange-generator:${TAG} -f DockerfileExchangeGenerator --platform ${PLATFORM} .
+                    docker tag exchange-generator:${TAG} ${DOCKER_REGISTRY}/exchange-generator:${TAG}
+                    docker push ${DOCKER_REGISTRY}/exchange-generator:${TAG}
+                '''
             }
+        }
 
-            stage('Build Cash') {
-                when {
-                    expression { params.SERVICE == 'cash' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t cash:${TAG} -f DockerfileCashService --platform ${PLATFORM} .
-                        docker tag cash:${TAG} ${DOCKER_REGISTRY}/cash:${TAG}
-                        docker push ${DOCKER_REGISTRY}/cash:${TAG}
-                    '''
-                }
+        stage('Build Accounts') {
+            when {
+                expression { params.SERVICE == 'accounts' || params.SERVICE == 'all' }
             }
-
-            stage('Build Notifications') {
-                when {
-                    expression { params.SERVICE == 'notifications' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t notifications:${TAG} -f DockerfileNotificationService --platform ${PLATFORM} .
-                        docker tag notifications:${TAG} ${DOCKER_REGISTRY}/notifications:${TAG}
-                        docker push ${DOCKER_REGISTRY}/notifications:${TAG}
-                    '''
-                }
+            steps {
+                sh '''
+                    docker build -t accounts:${TAG} -f DockerfileAccountService --platform ${PLATFORM} .
+                    docker tag accounts:${TAG} ${DOCKER_REGISTRY}/accounts:${TAG}
+                    docker push ${DOCKER_REGISTRY}/accounts:${TAG}
+                '''
             }
+        }
 
-            stage('Build Transfer') {
-                when {
-                    expression { params.SERVICE == 'transfer' || params.SERVICE == 'all' }
-                }
-                steps {
-                    sh '''
-                        docker build -t transfer:${TAG} -f DockerfileTransfer --platform ${PLATFORM} .
-                        docker tag transfer:${TAG} ${DOCKER_REGISTRY}/transfer:${TAG}
-                        docker push ${DOCKER_REGISTRY}/transfer:${TAG}
-                    '''
-                }
+        stage('Build Front') {
+            when {
+                expression { params.SERVICE == 'front' || params.SERVICE == 'all' }
+            }
+            steps {
+                sh '''
+                    docker build -t front:${TAG} -f DockerfileFront --platform ${PLATFORM} .
+                    docker tag front:${TAG} ${DOCKER_REGISTRY}/front:${TAG}
+                    docker push ${DOCKER_REGISTRY}/front:${TAG}
+                '''
+            }
+        }
+
+        stage('Build Blocker') {
+            when {
+                expression { params.SERVICE == 'blocker' || params.SERVICE == 'all' }
+            }
+            steps {
+                sh '''
+                    docker build -t blocker:${TAG} -f DockerfileBlocker --platform ${PLATFORM} .
+                    docker tag blocker:${TAG} ${DOCKER_REGISTRY}/blocker:${TAG}
+                    docker push ${DOCKER_REGISTRY}/blocker:${TAG}
+                '''
+            }
+        }
+
+        stage('Build Cash') {
+            when {
+                expression { params.SERVICE == 'cash' || params.SERVICE == 'all' }
+            }
+            steps {
+                sh '''
+                    docker build -t cash:${TAG} -f DockerfileCashService --platform ${PLATFORM} .
+                    docker tag cash:${TAG} ${DOCKER_REGISTRY}/cash:${TAG}
+                    docker push ${DOCKER_REGISTRY}/cash:${TAG}
+                '''
+            }
+        }
+
+        stage('Build Notifications') {
+            when {
+                expression { params.SERVICE == 'notifications' || params.SERVICE == 'all' }
+            }
+            steps {
+                sh '''
+                    docker build -t notifications:${TAG} -f DockerfileNotificationService --platform ${PLATFORM} .
+                    docker tag notifications:${TAG} ${DOCKER_REGISTRY}/notifications:${TAG}
+                    docker push ${DOCKER_REGISTRY}/notifications:${TAG}
+                '''
+            }
+        }
+
+        stage('Build Transfer') {
+            when {
+                expression { params.SERVICE == 'transfer' || params.SERVICE == 'all' }
+            }
+            steps {
+                sh '''
+                    docker build -t transfer:${TAG} -f DockerfileTransfer --platform ${PLATFORM} .
+                    docker tag transfer:${TAG} ${DOCKER_REGISTRY}/transfer:${TAG}
+                    docker push ${DOCKER_REGISTRY}/transfer:${TAG}
+                '''
             }
         }
 
