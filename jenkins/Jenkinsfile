@@ -213,9 +213,12 @@ pipeline {
             steps {
                 sh """
                 export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
-                rm -f ./kubernetes/Chart.lock
-                helm dependency update ./kubernetes
-                helm lint ./kubernetes
+                set -euxo pipefail
+                cd kubernetes
+                rm -f Chart.lock || true
+                helm dependency update .
+                helm dependency list .
+                helm lint .
                 """
             }
         }
