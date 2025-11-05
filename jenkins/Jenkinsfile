@@ -206,22 +206,36 @@ pipeline {
               }
         }
 
-        stage('Helm Lint') {
-            when {
-                expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
-            }
-            steps {
-                sh """
-                export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
-                set -euxo pipefail
-                cd kubernetes
-                rm -f Chart.lock || true
-                helm dependency update .
-                helm dependency list .
-                helm lint .
-                """
-            }
-        }
+//         stage('Helm Lint') {
+//             when {
+//                 expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+//             }
+//             steps {
+//                 sh """
+//                 export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+//                 set -euxo pipefail
+//                 cd kubernetes
+//                 rm -f Chart.lock || true
+//                 helm dependency update .
+//                 helm dependency list .
+//                 helm lint .
+//                 """
+//             }
+//         }
+
+        stage('Helm Test') {
+                    when {
+                        expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+                    }
+                    steps {
+                        sh """
+                        export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+                        set -euxo pipefail
+                        cd kubernetes
+                        helm install --dry-run --debug test .
+                        """
+                    }
+                }
 
         stage('Helm Deploy to PROD') {
             when {
