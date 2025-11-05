@@ -159,6 +159,21 @@ pipeline {
             }
         }
 
+        stage('Kube Preflight') {
+              steps {
+                  sh '''
+                  export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+                    set -eux
+
+                    kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
+
+                    echo ">>> Current context:"
+                    kubectl config current-context
+                    kubectl config view --minify
+                    '''
+              }
+        }
+
         stage('Helm Deploy to PROD') {
             steps {
                 sh """
