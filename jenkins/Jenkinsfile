@@ -24,12 +24,23 @@ pipeline {
             ],
             description: 'Select which service to build & deploy'
         )
+        choice(
+            name: 'STAGES',
+            choices: [
+                'all_stages',
+                'helm_stages'
+            ],
+            description: 'Select stages'
+        )
     }
 
     stages {
         stage('Build & Unit Tests') {
             parallel {
                 stage('Accounts') {
+                    when {
+                        expression { params.STAGES == 'all_stages' }
+                    }
                     steps {
                         sh """
                             mvn -pl account-service -am clean test
@@ -37,6 +48,9 @@ pipeline {
                     }
                 }
                 stage('Blocker Service') {
+                    when {
+                        expression { params.STAGES == 'all_stages' }
+                    }
                     steps {
                         sh """
                             mvn -pl blocker -am clean test
@@ -47,6 +61,9 @@ pipeline {
         }
 
         stage('Login to GHCR') {
+            when {
+                expression { params.STAGES == 'all_stages' }
+            }
             steps {
                 withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
                     sh '''
@@ -58,7 +75,7 @@ pipeline {
 
         stage('Build Exchange') {
             when {
-                expression { params.SERVICE == 'exchange' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'exchange' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -71,7 +88,7 @@ pipeline {
 
         stage('Build Exchange Generator') {
             when {
-                expression { params.SERVICE == 'exchange-generator' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'exchange-generator' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -84,7 +101,7 @@ pipeline {
 
         stage('Build Accounts') {
             when {
-                expression { params.SERVICE == 'accounts' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && ( params.SERVICE == 'accounts' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -97,7 +114,7 @@ pipeline {
 
         stage('Build Front') {
             when {
-                expression { params.SERVICE == 'front' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'front' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -110,7 +127,7 @@ pipeline {
 
         stage('Build Blocker') {
             when {
-                expression { params.SERVICE == 'blocker' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'blocker' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -123,7 +140,7 @@ pipeline {
 
         stage('Build Cash') {
             when {
-                expression { params.SERVICE == 'cash' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'cash' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -136,7 +153,7 @@ pipeline {
 
         stage('Build Notifications') {
             when {
-                expression { params.SERVICE == 'notifications' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'notifications' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -149,7 +166,7 @@ pipeline {
 
         stage('Build Transfer') {
             when {
-                expression { params.SERVICE == 'transfer' || params.SERVICE == 'all' }
+                expression { params.STAGES == 'all_stages' && (params.SERVICE == 'transfer' || params.SERVICE == 'all') }
             }
             steps {
                 sh '''
@@ -172,6 +189,9 @@ pipeline {
         }
 
         stage('Kube Preflight') {
+            when {
+                expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+            }
               steps {
                   sh '''
                   export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
@@ -186,7 +206,22 @@ pipeline {
               }
         }
 
+        stage('Helm Lint') {
+            when {
+                expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+            }
+            steps {
+                sh """
+                export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+                helm lint .
+                """
+            }
+        }
+
         stage('Helm Deploy to PROD') {
+            when {
+                expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+            }
             steps {
                 sh """
                 export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml

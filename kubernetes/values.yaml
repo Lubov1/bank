@@ -159,3 +159,30 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+front:
+  enabled: true
+
+notifications:
+  enabled: true
+
+accounts:
+  enabled: true
+
+exchange:
+  enabled: true
+
+keycloak:
+  enabled: true
+
+transfer:
+  enabled: true
+
+blocker:
+  enabled: true
+
+cash:
+  enabled: true
+
+exchangeGenerator:
+  enabled: true
