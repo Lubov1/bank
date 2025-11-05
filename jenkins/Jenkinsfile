@@ -54,13 +54,13 @@ stage('Kube Preflight') {
             set -eux
 
             echo ">>> kubeconfig in use: $KUBECONFIG"
-            kubectl version --short
+            kubectl version
 
             echo ">>> Current context:"
             kubectl config current-context
 
-            echo ">>> Server URL of current context:"
-            kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
+//             echo ">>> Server URL of current context:"
+//             kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
 
             echo ">>> Cluster info:"
             kubectl cluster-info
