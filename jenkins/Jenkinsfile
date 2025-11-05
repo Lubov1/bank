@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = credentials('DOCKER_REGISTRY')
         GITHUB_USERNAME = credentials('GITHUB_USERNAME')
         TAG = "0.0.1"
         PLATFORM = "linux/amd64"
