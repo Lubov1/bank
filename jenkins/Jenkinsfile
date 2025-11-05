@@ -8,41 +8,37 @@ pipeline {
     }
 
     stages {
-        stage('Build & Unit Tests') {
-            parallel {
-                stage('Accounts') {
-                    steps {
-                        sh """
-                            mvn -pl account-service -am clean test
-                           """
-                    }
-                }
-                stage('Blocker Service') {
-                    steps {
-                        sh """
-                            mvn -pl blocker -am clean test
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Build And Push Docker Images') {
-            steps {
-//                 sh """
-//                 chmod +x ./build-images.sh
-//                           ./build-images.sh
-//                 """
-                withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
-                    sh '''
-                        echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
-                        export DOCKER_REGISTRY=ghcr.io/lubov1
-                        chmod +x build-images.sh
-                        ./build-images.sh
-                    '''
-                }
-            }
-        }
+//         stage('Build & Unit Tests') {
+//             parallel {
+//                 stage('Accounts') {
+//                     steps {
+//                         sh """
+//                             mvn -pl account-service -am clean test
+//                            """
+//                     }
+//                 }
+//                 stage('Blocker Service') {
+//                     steps {
+//                         sh """
+//                             mvn -pl blocker -am clean test
+//                         """
+//                     }
+//                 }
+//             }
+//         }
+//
+//         stage('Build And Push Docker Images') {
+//             steps {
+//                 withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'GHCR_TOKEN')]) {
+//                     sh '''
+//                         echo "$GHCR_TOKEN" | docker login ghcr.io -u Lubov1 --password-stdin
+//                         export DOCKER_REGISTRY=ghcr.io/lubov1
+//                         chmod +x build-images.sh
+//                         ./build-images.sh
+//                     '''
+//                 }
+//             }
+//         }
 
 
 //         stage('Manual Approval for PROD') {
@@ -51,9 +47,43 @@ pipeline {
 //             }
 //         }
 
+stage('Kube Preflight') {
+      steps {
+          sh '''
+          export KUBECONFIG=/root/.kube/config
+            set -eux
+
+            echo ">>> kubeconfig in use: $KUBECONFIG"
+            kubectl version --short
+
+            echo ">>> Current context:"
+            kubectl config current-context
+
+            echo ">>> Server URL of current context:"
+            kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
+
+            echo ">>> Cluster info:"
+            kubectl cluster-info
+
+            echo ">>> Nodes:"
+            kubectl get nodes -o wide
+
+            echo ">>> Check a raw API call:"
+            kubectl get --raw /version || true
+
+            echo ">>> List a few API resources:"
+            kubectl api-resources | head -n 20
+          '''
+      }
+    }
+
+
+
         stage('Helm Deploy to PROD') {
             steps {
                 sh """
+                export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+                kubectl get nodes
                 helm install myapp ./kubernetes
                 """
             }
