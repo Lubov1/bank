@@ -50,7 +50,7 @@ pipeline {
 stage('Kube Preflight') {
       steps {
           sh '''
-          export KUBECONFIG=/root/.kube/config
+          export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
             set -eux
 
 //             echo ">>> kubeconfig in use: $KUBECONFIG"
