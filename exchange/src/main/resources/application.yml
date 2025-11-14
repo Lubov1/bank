@@ -1,22 +1,46 @@
 spring:
   application:
     name: exchange
-
-  security:
-    oauth2:
-      client:
-        registration:
-          exchange:
-            authorization-grant-type: client_credentials
-            provider: keycloak
-            client-id: exchange
-            client-secret: exchange-secret
-            scope: profile,email
+  kafka:
+    bootstrap-servers: 'localhost:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: yandex-practicum
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1000
+      acks: all
+      properties:
+        enable.idempotence: true
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          exchange:
+#            authorization-grant-type: client_credentials
+#            provider: keycloak
+#            client-id: exchange
+#            client-secret: exchange-secret
+#            scope: profile,email
 server:
-  port: 8080
+  port: 8082
 
 management:
   endpoints:
     web:
       exposure:
         include: beans,conditions,env,configprops,mappings
+
+notificationsService:
+  needed: true

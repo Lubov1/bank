@@ -1,5 +1,6 @@
 package ru.yandex.practicum.bankautoconfigure.configuration;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,18 +13,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestTemplate;
 
 @AutoConfiguration
 @EnableWebSecurity
 @ConditionalOnClass(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository.class)
 public class RestTemplateConfig {
+    @Bean
+    public NewTopic exchangesTopic() {
+        return TopicBuilder.name("notifications")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
     Logger logger = LoggerFactory.getLogger(RestTemplateConfig.class);
     private final String appName;
 
@@ -96,8 +106,8 @@ public class RestTemplateConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "notificationsService", name = "needed")
-    NotificationService notificationService(RestTemplate restTemplate) {
-        return new NotificationService(restTemplate);
+    NotificationService notificationService(KafkaTemplate<String, String> kafkaTemplate) {
+        return new NotificationService(kafkaTemplate);
     }
 
 }

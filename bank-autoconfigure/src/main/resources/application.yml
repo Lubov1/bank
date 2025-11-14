@@ -1,14 +1,7 @@
 spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          exchange:
-            authorization-grant-type: client_credentials
-            provider: keycloak
-            client-id: exchange
-            client-secret: exchange-secret
-            scope: profile,email
+  application:
+    name:
+      bank-autoconfigure
   kafka:
     bootstrap-servers: 'kafka:9092'
     admin:

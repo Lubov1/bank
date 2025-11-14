@@ -6,8 +6,13 @@ import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Properties;
 
 @Service
@@ -22,9 +27,17 @@ public class NotificationService {
     private String smtpEmail;
     @Value("${mail.smtp.password}")
     private String smtpPassword;
+    @RetryableTopic(
+            attempts = "3",
+            backoff = @Backoff(delay = 2000)
+    )
+    @KafkaListener(topics = "notifications")
+    public void consume(Map<String, String> message, Acknowledgment acknowledgment) {
+        sendEmail(message.get("email"), message.get("message"), acknowledgment);
+    }
 
-    public void sendEmail(String email, String message) {
-
+    public void sendEmail(String email, String message, Acknowledgment acknowledgment) {
+        logger.info("Sending email to " + email);
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -49,7 +62,7 @@ public class NotificationService {
 
             // Отправка
             Transport.send(emailMessage);
-
+            acknowledgment.acknowledge();
             logger.info("Письмо отправлено успешно!");
         } catch (MessagingException e) {
             throw new RuntimeException(e.getMessage());

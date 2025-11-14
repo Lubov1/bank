@@ -186,3 +186,6 @@ cash:
 
 exchangeGenerator:
   enabled: true
+
+kafka:
+  enabled: true
