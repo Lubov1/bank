@@ -9,3 +9,7 @@ spring:
             client-id: blocker
             client-secret: blocker-secret
             scope: profile,email
+
+
+server:
+  port: 8080

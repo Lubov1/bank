@@ -16,13 +16,14 @@ public class RestExceptionHandlerController {
     @ExceptionHandler(RestClientResponseException.class)
     public ResponseEntity<Map<String, Object>> handleDownstream(RestClientResponseException ex) {
         String message = ex.getMessage();
-        logger.info(message);
+        logger.info(message, ex.getResponseBodyAsString());
         return ResponseEntity
                 .status(ex.getRawStatusCode())
                 .body(Map.of(
                         "error", "downstream",
                         "status", ex.getRawStatusCode(),
-                        "message", message
+                        "message", message,
+                        "details", ex.getResponseBodyAsString()
                 ));
     }
 

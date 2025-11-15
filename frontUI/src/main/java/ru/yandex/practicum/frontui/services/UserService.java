@@ -44,7 +44,7 @@ public class UserService {
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<UserData> entity = new HttpEntity<>(user, headers);
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/signup")
+            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "signup")
                     , HttpMethod.POST, entity, Void.class);
 
             logger.info("user {} is created", user.getLogin());
@@ -59,7 +59,7 @@ public class UserService {
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<User> entity = new HttpEntity<>(user, headers);
-             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/login")
+             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "login")
                     , HttpMethod.POST, entity, Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());

@@ -22,3 +22,5 @@ spring:
       acks: all
       properties:
         enable.idempotence: true
+server:
+  port: 8080

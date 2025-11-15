@@ -26,3 +26,6 @@ blockerService:
   needed: true
 notificationsService:
   needed: true
+
+server:
+  port: 8080

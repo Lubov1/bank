@@ -28,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @ConditionalOnClass(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository.class)
 public class RestTemplateConfig {
     @Bean
+    @ConditionalOnBean(NotificationService.class)
     public NewTopic exchangesTopic() {
         return TopicBuilder.name("notifications")
                 .partitions(3)

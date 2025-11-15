@@ -9,9 +9,21 @@ spring:
             client-id: notifications
             client-secret: notifications-secret
             scope: profile,email
+  kafka:
+    consumer:
+      bootstrap-servers: kafka:9092
+      group-id: yandex-practicum
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL
 mail:
   smtp:
     host: smtp.gmail.com
     port: 587
     email: notificationservice2004@gmail.com
     password: chdw jtsa ziaw mzrx
+server:
+  port: 8080

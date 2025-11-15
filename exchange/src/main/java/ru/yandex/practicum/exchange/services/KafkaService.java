@@ -25,8 +25,6 @@ public class KafkaService {
         logger.info("Received exchanges: " + exchanges);
         ack.acknowledge();
         currenciesService.saveCurrencies(exchanges);
-        logger.info("saved");
-        notificationService.sendNotification("", "exchanges savedd");
         logger.info("Saved exchanges.");
     }
 

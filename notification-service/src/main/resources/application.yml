@@ -19,4 +19,4 @@ mail:
     email: notificationservice2004@gmail.com
     password: chdw jtsa ziaw mzrx
 server:
-  port: 8085
+  port: 8080
