@@ -15,14 +15,6 @@ spring:
       enable-auto-commit: false
     listener:
       ack-mode: MANUAL
-    producer:
-      bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      retries: 1000
-      acks: all
-      properties:
-        enable.idempotence: true
   security:
     oauth2:
       client:

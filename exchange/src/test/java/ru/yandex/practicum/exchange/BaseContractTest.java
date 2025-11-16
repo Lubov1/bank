@@ -1,19 +1,23 @@
 package ru.yandex.practicum.exchange;
 
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
-import org.junit.jupiter.api.BeforeEach;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.bankautoconfigure.currency.Currency;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import ru.yandex.practicum.exchange.services.CurrenciesService;
 
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.Duration;
 import java.util.Map;
 
 @SpringBootTest(properties = {
@@ -22,50 +26,36 @@ import java.util.Map;
         "spring.config.import=",
         "spring.profiles.active=test"
 })
-@AutoConfigureMockMvc(addFilters = false)
 @Import({RestConfig.class})
 @EnableAutoConfiguration(exclude = {
         ru.yandex.practicum.bankautoconfigure.configuration.RestTemplateConfig.class
 })
-public abstract class BaseContractTest {
+@EmbeddedKafka(topics = {"exchanges"})
+public class BaseContractTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    KafkaTemplate<String, Map<String, Double>> kafkaTemplate;
 
     @Autowired
     CurrenciesService currenciesService;
 
-    @BeforeEach
-    void setup() {
-        RestAssuredMockMvc.mockMvc(mockMvc);
-        Map<String, Currency> body = Map.of(
-                "USD", new Currency(new CurrencyEntry("USD", 82.24)),
-                "RUB", new Currency(new CurrencyEntry("RUB", 1.00)),
-                "CNY", new Currency(new CurrencyEntry("CNY", 11.71)));
-        when(currenciesService.getCurrencies()).thenReturn(body);
-    }
 
-    class CurrencyEntry implements Map.Entry<String, Double> {
-        String key;
-        Double value;
-        CurrencyEntry(String key, Double value) {
-            this.key = key;
-            this.value = value;
-        }
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public Double getValue() {
-            return value;
-        }
-
-        @Override
-        public Double setValue(Double value) {
-            this.value = value;
-            return value;
-        }
+    @Test
+    void testListener() throws InterruptedException {
+        Message<Map<String, Double>> message = MessageBuilder
+                .withPayload(Map.of("USD", 10.2, "RUB", 10.6))
+                .setHeader(KafkaHeaders.TOPIC, "exchanges")
+                .setHeader(KafkaHeaders.KEY, "ex")
+                .build();
+        kafkaTemplate.send(message);
+        Awaitility.await()
+            .atMost(Duration.ofSeconds(3))
+            .untilAsserted(() -> {
+                var currencies = currenciesService.getCurrencies();
+                assertNotNull(currencies);
+                assertEquals(2, currencies.size());
+                assertEquals(10.2, currencies.get("USD").getValue().doubleValue());
+                assertEquals(10.6, currencies.get("RUB").getValue().doubleValue());
+            });
     }
 }

@@ -15,5 +15,5 @@ spring:
       properties:
         enable.idempotence: false
 server:
-  port: 8081
+  port: 8080
 
