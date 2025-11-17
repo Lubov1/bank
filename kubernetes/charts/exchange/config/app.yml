@@ -9,3 +9,27 @@ spring:
             client-id: exchange
             client-secret: exchange-secret
             scope: profile,email
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    consumer:
+      bootstrap-servers: kafka:9092
+      group-id: yandex-practicum
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1000
+      acks: all
+      properties:
+        enable.idempotence: true
+server:
+  port: 8080

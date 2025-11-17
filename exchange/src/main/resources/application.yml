@@ -1,7 +1,20 @@
 spring:
   application:
     name: exchange
-
+  kafka:
+    bootstrap-servers: 'localhost:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: yandex-practicum
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    listener:
+      ack-mode: MANUAL
   security:
     oauth2:
       client:

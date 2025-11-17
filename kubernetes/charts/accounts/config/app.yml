@@ -23,9 +23,24 @@ spring:
             client-id: accounts
             client-secret: accounts-secret
             scope: profile,email
-
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1000
+      acks: all
+      properties:
+        enable.idempotence: true
 
 blockerService:
   needed: true
 notificationsService:
   needed: true
+
+server:
+  port: 8080

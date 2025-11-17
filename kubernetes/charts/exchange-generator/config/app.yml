@@ -9,3 +9,19 @@ spring:
             client-id: exchange-generator
             client-secret: exchange-generator-secret
             scope: profile,email
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 0
+      retries: 0
+      properties:
+        enable.idempotence: false
+
+server:
+  port: 8080

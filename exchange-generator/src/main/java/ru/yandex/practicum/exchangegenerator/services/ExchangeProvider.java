@@ -1,39 +1,50 @@
 package ru.yandex.practicum.exchangegenerator.services;
 
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
 @Service
 public class ExchangeProvider {
-    RestTemplate restTemplate;
     ExchangeGenerator exchangeGenerator;
     Logger logger = LoggerFactory.getLogger(ExchangeProvider.class);
+    KafkaTemplate<String, Double> kafkaTemplate;
 
 
-    @Value("${gateway.prefix}")
-    String gatewayPrefix;
-    @Value("${exchange.prefix}")
-    String exchangePrefix;
-
-    public ExchangeProvider(RestTemplate restTemplate, ExchangeGenerator exchangeGenerator) {
-        this.restTemplate = restTemplate;
+    public ExchangeProvider(
+            ExchangeGenerator exchangeGenerator, KafkaTemplate<String, Double> kafkaTemplate) {
         this.exchangeGenerator = exchangeGenerator;
+        this.kafkaTemplate = kafkaTemplate;
     }
-    @Scheduled(fixedRate = 60000)
-    public void sendCurrencies() {
+
+    @Scheduled(fixedRate = 10000)
+    public void sendCurrenciesKafka() {
         logger.info("Sending exchange");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String,Double>> entity = new HttpEntity<>(exchangeGenerator.getExchanges(), headers);
-        restTemplate.exchange("http://" + gatewayPrefix + "/"+ exchangePrefix +"/getCurrencies",
-                HttpMethod.POST, entity, Void.class);
+        Map<String, Double> exchanges = exchangeGenerator.getExchanges();
+        Message<Map<String, Double>> message = MessageBuilder
+                .withPayload(exchanges)
+                .setHeader(KafkaHeaders.TOPIC, "exchanges")
+                .setHeader(KafkaHeaders.KEY, "ex")
+                .build();
+
+        kafkaTemplate.send(message).whenComplete((result, e) -> {
+            if (e != null) {
+                logger.error("Ошибка при отправке сообщения: {}", e.getMessage(), e);
+                return;
+            }
+
+            RecordMetadata metadata = result.getRecordMetadata();
+            logger.info("Сообщение отправлено. Topic = {}, partition = {}, offset = {}",
+                    metadata.topic(), metadata.partition(), metadata.offset());
+        });
         logger.info("exchanges are sent");
     }
 }

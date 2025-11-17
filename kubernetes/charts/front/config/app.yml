@@ -13,3 +13,5 @@ accounts:
   prefix: accounts
 gateway:
   prefix: gateway
+server:
+  port: 8080
