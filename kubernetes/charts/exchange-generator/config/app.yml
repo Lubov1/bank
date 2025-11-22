@@ -1,7 +1,15 @@
 spring:
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8080/realms/master/protocol/openid-connect/certs"
+
       client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8080/realms/master/protocol/openid-connect/token
+
         registration:
           exchange-generator:
             authorization-grant-type: client_credentials
@@ -22,6 +30,21 @@ spring:
       retries: 0
       properties:
         enable.idempotence: false
-
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: gateway
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
 server:
   port: 8080

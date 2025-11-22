@@ -24,8 +24,11 @@ public class ExchangeProxyController {
     @GetMapping("/exchange")
     public ResponseEntity<?> getExchange() {
         HttpHeaders h = new HttpHeaders();
+//        ResponseEntity<String> resp = restTemplate.exchange(
+//                "http://gateway/exchange/getCurrencies",
+//                HttpMethod.GET, new HttpEntity<>(h), String.class);
         ResponseEntity<String> resp = restTemplate.exchange(
-                "http://gateway/exchange/getCurrencies",
+                "http://exchange:8080/getCurrencies",
                 HttpMethod.GET, new HttpEntity<>(h), String.class);
         logger.info(resp.getBody());
         return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());

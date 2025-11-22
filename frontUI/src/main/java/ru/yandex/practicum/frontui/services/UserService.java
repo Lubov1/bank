@@ -44,7 +44,10 @@ public class UserService {
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<UserData> entity = new HttpEntity<>(user, headers);
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "signup")
+//            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "signup")
+//                    , HttpMethod.POST, entity, Void.class);
+            logger.info(String.join("/", "http:/", accountPrefix+":8080", "signup"));
+            restTemplate.exchange(String.join("/", "http:/", accountPrefix+":8080", "signup")
                     , HttpMethod.POST, entity, Void.class);
 
             logger.info("user {} is created", user.getLogin());
@@ -59,7 +62,9 @@ public class UserService {
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<User> entity = new HttpEntity<>(user, headers);
-             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "login")
+//             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "login")
+//                    , HttpMethod.POST, entity, Void.class);
+             restTemplate.exchange(String.join("/", "http:/",  accountPrefix+":8080", "login")
                     , HttpMethod.POST, entity, Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
@@ -69,7 +74,10 @@ public class UserService {
     public List<Account> getAccounts(String login) {
         logger.info("getting accounts");
         try {
-            ResponseEntity<List<Account>> response = restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/getAccounts"
+//            ResponseEntity<List<Account>> response = restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/getAccounts"
+//                    , HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+//                    });
+            ResponseEntity<List<Account>> response = restTemplate.exchange("http://" + accountPrefix +":8080"+ "/" + login + "/getAccounts"
                     , HttpMethod.GET, null, new ParameterizedTypeReference<>() {
                     });
 
@@ -86,7 +94,9 @@ public class UserService {
 
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
         try {
-            restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/editPassword",
+//            restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/editPassword",
+//                    HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange("http://" + accountPrefix+":8080" + "/" + login + "/editPassword",
                     HttpMethod.POST, entity, Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), login);
@@ -95,7 +105,10 @@ public class UserService {
 
     public void changeUserAccounts(String login, String name, LocalDate birthdate) {
         try {
-            restTemplate.exchange(String.join("/","http:/",gatewayPrefix, accountPrefix, login, "editUserAccounts"),
+//            restTemplate.exchange(String.join("/","http:/",gatewayPrefix, accountPrefix, login, "editUserAccounts"),
+//                    HttpMethod.POST, new HttpEntity<>(new PersonalInformation(name, birthdate)), Void.class);
+
+            restTemplate.exchange(String.join("/","http:/", accountPrefix+":8080", login, "editUserAccounts"),
                     HttpMethod.POST, new HttpEntity<>(new PersonalInformation(name, birthdate)), Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), login);
@@ -112,7 +125,9 @@ public class UserService {
         HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(map, headers);
 
         try {
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "addAccount"),
+//            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "addAccount"),
+//                    HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/", "http:/",  accountPrefix+":8080", login, "addAccount"),
                     HttpMethod.POST, entity, Void.class);
 
         } catch (RestClientResponseException ex) {
@@ -131,7 +146,10 @@ public class UserService {
         HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(map, headers);
 
         try {
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "deleteAccount"),
+//            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "deleteAccount"),
+//                    HttpMethod.POST, entity, Void.class);
+
+            restTemplate.exchange(String.join("/", "http:/",  accountPrefix+":8080", login, "deleteAccount"),
                     HttpMethod.POST, entity, Void.class);
 
         } catch (RestClientResponseException ex) {
@@ -142,7 +160,10 @@ public class UserService {
     }
 
     public void logout() {
-        restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/logout")
+//        restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/logout")
+//                , HttpMethod.POST, null, new ParameterizedTypeReference<>() {
+//                });
+        restTemplate.exchange(String.join("/", "http:/",  accountPrefix+":8080", "/logout")
                 , HttpMethod.POST, null, new ParameterizedTypeReference<>() {
                 });
     }

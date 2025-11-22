@@ -26,7 +26,9 @@ public class BlockerService {
         map.add("amount", amount.toString());
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
 
-        restTemplate.exchange("http://" + gatewayApiPrefix + "/"+ blockerPrefix + "/" + login +"/check",
+//        restTemplate.exchange("http://" + gatewayApiPrefix + "/"+ blockerPrefix + "/" + login +"/check",
+//                HttpMethod.POST, entity, Void.class);
+        restTemplate.exchange("http://" + blockerPrefix + ":8080/" + login +"/check",
                 HttpMethod.POST, entity, Void.class);
     }
 }

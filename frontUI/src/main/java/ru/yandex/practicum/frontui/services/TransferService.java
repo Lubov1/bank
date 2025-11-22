@@ -34,7 +34,9 @@ public class TransferService {
 
         HttpEntity<TransferRequest> entity = new HttpEntity<>(new TransferRequest(loginTo,currencyFrom,currencyTo, BigDecimal.valueOf(amount)), headers);
         try {
-            restTemplate.exchange(String.join("/","http:/",gatewayPrefix, transferPrefix, loginFrom, "transfer"),
+//            restTemplate.exchange(String.join("/","http:/",gatewayPrefix, transferPrefix, loginFrom, "transfer"),
+//                    HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/","http:/", transferPrefix+":8080", loginFrom, "transfer"),
                     HttpMethod.POST, entity, Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), loginFrom);

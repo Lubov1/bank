@@ -1,6 +1,41 @@
 
 services:
-  account-service:
+  kafka:
+    image: apache/kafka:4.0.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_CLUSTER_ID: "abcdefghijklmnopqrstuv"
+
+    volumes:
+      - ./data:/var/lib/kafka/data
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+
+
+
+  accounts:
     image: account-service:0.0.1
     platform: linux/amd64
     build:
@@ -23,18 +58,24 @@ services:
     build:
       context: .
       dockerfile: DockerfileBlocker
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8081:8080"
     environment:
       - SERVER_PORT=8080
 
 
-  cash-service:
+  cash:
     image: cash-service:0.0.1
     platform: linux/amd64
     build:
       context: .
       dockerfile: DockerfileCashService
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8098:8080"
     environment:
@@ -48,6 +89,9 @@ services:
     build:
       context: .
       dockerfile: DockerfileExchange
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8095:8080"
     environment:
@@ -61,6 +105,9 @@ services:
     build:
       context: .
       dockerfile: DockerfileExchangeGenerator
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8096:8080"
     environment:
@@ -73,6 +120,9 @@ services:
     build:
       context: .
       dockerfile: DockerfileFront
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8083:8080"
     environment:
@@ -85,18 +135,24 @@ services:
     build:
       context: .
       dockerfile: DockerfileGatewayApi
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8084:8080"
     environment:
       - SERVER_PORT=8080
 
 #
-  notification-service:
+  notifications:
     image: notification-service:0.0.1
     platform: linux/amd64
     build:
       context: .
       dockerfile: DockerfileNotificationService
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8085:8080"
     environment:
@@ -108,6 +164,9 @@ services:
     build:
       context: .
       dockerfile: DockerfileTransfer
+    depends_on:
+      keycloak:
+        condition: service_healthy
     ports:
       - "8097:8080"
     environment:
@@ -132,36 +191,36 @@ services:
       retries: 5
 
 
-  consul:
-    image: hashicorp/consul:1.17
-    container_name: consul
-    command: agent -dev -client=0.0.0.0 -log-level=INFO
-    ports:
-      - "8500:8500"
-    healthcheck:
-      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:8500/v1/status/leader" ]
-      interval: 2s
-      timeout: 1s
-      retries: 30
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+#  consul:
+#    image: hashicorp/consul:1.17
+#    container_name: consul
+#    command: agent -dev -client=0.0.0.0 -log-level=INFO
+#    ports:
+#      - "8500:8500"
+#    healthcheck:
+#      test: [ "CMD", "wget", "-qO-", "http://127.0.0.1:8500/v1/status/leader" ]
+#      interval: 2s
+#      timeout: 1s
+#      retries: 30
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "10m"
+#        max-file: "3"
 
 
-  consul-seeder:
-    image: curlimages/curl:8.8.0
-    depends_on:
-      consul:
-        condition: service_healthy
-    volumes:
-      - ./config:/config:ro
-    entrypoint: [ "/bin/sh", "/config/config.sh" ]
-    environment:
-      CONSUL_ADDR: http://consul:8500
-      CONSUL_KV_PREFIX: config
-      CONSUL_DATA_KEY: data
+#  consul-seeder:
+#    image: curlimages/curl:8.8.0
+#    depends_on:
+#      consul:
+#        condition: service_healthy
+#    volumes:
+#      - ./config:/config:ro
+#    entrypoint: [ "/bin/sh", "/config/config.sh" ]
+#    environment:
+#      CONSUL_ADDR: http://consul:8500
+#      CONSUL_KV_PREFIX: config
+#      CONSUL_DATA_KEY: data
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.3
@@ -175,22 +234,20 @@ services:
       /bin/bash -c "
         /opt/keycloak/bin/kc.sh $${0} &             
         pid=$$!
-        /opt/keycloak/keycloak-setup.sh             
-        wait $$pid                                  
+        /opt/keycloak/keycloak-setup.sh   
+        touch /tmp/setup-done
+        wait $$pid       
+        
       " start-dev --import-realm
     healthcheck:
       test: >
         /bin/bash -c '
-          /opt/keycloak/bin/kcadm.sh config credentials \
-            --server http://localhost:8080 \
-            --realm master \
-            --user admin \
-            --password admin > /dev/null 2>&1
+        test -f /tmp/setup-done
         '
       interval: 30s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 10s
     ports:
       - "8180:8080"
     environment:

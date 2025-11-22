@@ -2,8 +2,8 @@ spring:
   application:
     name: notifications
   kafka:
+    bootstrap-servers: kafka:9092
     consumer:
-      bootstrap-servers: localhost:9092
       group-id: yandex-practicum
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -11,7 +11,46 @@ spring:
       enable-auto-commit: false
     listener:
       ack-mode: MANUAL
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8180/realms/master/protocol/openid-connect/certs"
 
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8180/realms/master/protocol/openid-connect/token
+
+        registration:
+          notifications:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: notifications
+            client-secret: notifications-secret
+            scope: profile,email
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
 mail:
   smtp:
     host: smtp.gmail.com
@@ -20,3 +59,14 @@ mail:
     password: chdw jtsa ziaw mzrx
 server:
   port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  zipkin:
+    tracing:
+      endpoint:  http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1

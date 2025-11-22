@@ -1,6 +1,67 @@
 spring:
   application:
     name: cash
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8180/realms/master/protocol/openid-connect/certs"
 
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8180/realms/master/protocol/openid-connect/token
+
+        registration:
+          cash:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: cash
+            client-secret: cash-secret
+            scope: profile,email
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1000
+      acks: all
+      properties:
+        enable.idempotence: true
+blockerService:
+  needed: true
+notificationsService:
+  needed: true
 server:
   port: 8080
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  zipkin:
+    tracing:
+      endpoint:  http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1

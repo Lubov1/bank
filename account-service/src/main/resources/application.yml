@@ -1,10 +1,80 @@
 spring:
   application:
     name: accounts
+  datasource:
+    url: jdbc:postgresql://service-db:5432/postgres
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8180/realms/master/protocol/openid-connect/certs"
 
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8180/realms/master/protocol/openid-connect/token
+
+        registration:
+          accounts:
+            authorization-grant-type: client_credentials
+            provider: keycloak
+            client-id: accounts
+            client-secret: accounts-secret
+            scope: profile,email
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1000
+      acks: all
+      properties:
+        enable.idempotence: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  zipkin:
+    tracing:
+      endpoint:  http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1
+blockerService:
+  needed: true
+notificationsService:
+  needed: true
+
+accounts:
+  prefix: accounts
+exchange:
+  prefix: exchange
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: exchange-generator
+cash:
+  prefix: cash
+blocker:
+  prefix: blocker
+transfer:
+  prefix: transfer
+notifications:
+  prefix: notifications
 server:
   port: 8080
-
-emailService: notifications
-customFilterChain:
-  needed: false

@@ -23,6 +23,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler({IOException.class, IllegalArgumentException.class})
     public ResponseEntity<String> handleException(IOException ex) {
         logger.info(ex.getMessage());
+        logger.info(ex.getStackTrace().toString());
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
     }
 

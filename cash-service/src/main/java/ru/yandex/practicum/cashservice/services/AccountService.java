@@ -30,7 +30,9 @@ public class AccountService {
         HttpEntity<CashRequestDto> entity =
                 new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
 
-        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "withdraw"),
+//        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "withdraw"),
+//                HttpMethod.POST, entity, Void.class);
+        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/", accountPrefix+":8080", login, "withdraw"),
                 HttpMethod.POST, entity, Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
@@ -50,7 +52,9 @@ public class AccountService {
         HttpEntity<CashRequestDto> entity =
                 new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
 
-        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "deposit"),
+//        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/",gatewayApiPrefix, accountPrefix, login, "deposit"),
+//                HttpMethod.POST, entity, Void.class);
+        ResponseEntity<Void> response = restTemplate.exchange(String.join("/","http:/", accountPrefix+":8080", login, "deposit"),
                 HttpMethod.POST, entity, Void.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {

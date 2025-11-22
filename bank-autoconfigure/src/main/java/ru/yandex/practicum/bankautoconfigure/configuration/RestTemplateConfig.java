@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
@@ -55,8 +56,13 @@ public class RestTemplateConfig {
     }
     @Bean
     @ConditionalOnMissingBean
-    public RestTemplate restTemplate(AuthorizedClientServiceOAuth2AuthorizedClientManager manager) {
-        RestTemplate rt = new RestTemplate();
+    @ConditionalOnProperty(
+            name = "rest-template-enabled",
+            havingValue = "true",
+            matchIfMissing = true
+    )
+    public RestTemplate restTemplate(AuthorizedClientServiceOAuth2AuthorizedClientManager manager, RestTemplateBuilder builder) {
+        RestTemplate rt = builder.build();
         rt.getInterceptors().add((request, body, execution) -> {
             var authorizeRequest = OAuth2AuthorizeRequest
                     .withClientRegistrationId(appName)

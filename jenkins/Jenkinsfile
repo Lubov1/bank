@@ -224,18 +224,18 @@ pipeline {
 //         }
 
         stage('Helm Test') {
-                    when {
-                        expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
-                    }
-                    steps {
-                        sh """
-                        export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
-                        set -euxo pipefail
-                        cd kubernetes
-                        helm install --dry-run --debug test .
-                        """
-                    }
-                }
+            when {
+                expression { params.STAGES == 'helm_stages' ||  params.STAGES == 'all_stages'}
+            }
+            steps {
+                sh """
+                export KUBECONFIG=/root/.kube/jenkins_kubeconfig.yaml
+                set -euxo pipefail
+                cd kubernetes
+                helm install --dry-run --debug test .
+                """
+            }
+        }
 
         stage('Helm Deploy to PROD') {
             when {
