@@ -123,6 +123,8 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
+      accounts:
+        condition: service_started
     ports:
       - "8083:8080"
     environment:

@@ -58,7 +58,6 @@
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
-            <version>3.5.1</version>
         </dependency>
     </dependencies>
 

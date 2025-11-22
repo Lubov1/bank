@@ -1,5 +1,6 @@
 package ru.yandex.practicum.bankautoconfigure.configuration;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.kafka.config.TopicBuilder;
@@ -28,14 +32,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @ConditionalOnClass(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository.class)
 public class RestTemplateConfig {
-    @Bean
-    @ConditionalOnBean(NotificationService.class)
-    public NewTopic exchangesTopic() {
-        return TopicBuilder.name("notifications")
-                .partitions(3)
-                .replicas(1)
-                .build();
-    }
+
     Logger logger = LoggerFactory.getLogger(RestTemplateConfig.class);
     private final String appName;
 
@@ -44,6 +41,11 @@ public class RestTemplateConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            name = "rest-template-enabled",
+            havingValue = "true",
+            matchIfMissing = true
+    )
     public AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository repo,
                                                                                         OAuth2AuthorizedClientService clientService) {
         var provider = OAuth2AuthorizedClientProviderBuilder.builder()
@@ -109,12 +111,6 @@ public class RestTemplateConfig {
     @ConditionalOnProperty(prefix = "blockerService", name = "needed")
     BlockerService blockerService(RestTemplate restTemplate) {
         return new BlockerService(restTemplate);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "notificationsService", name = "needed")
-    NotificationService notificationService(KafkaTemplate<String, String> kafkaTemplate) {
-        return new NotificationService(kafkaTemplate);
     }
 
 }
