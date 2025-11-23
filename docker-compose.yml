@@ -1,5 +1,22 @@
 
 services:
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - accounts
+      - front
+      - notifications
+      - exchange
+      - exchange-generator
+      - cash
+      - blocker
+      - transfer
   kafka:
     image: apache/kafka:4.0.0
     container_name: kafka
