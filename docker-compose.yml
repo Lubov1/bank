@@ -49,6 +49,15 @@ services:
       - "9411:9411"
     environment:
       - STORAGE_TYPE=mem
+    depends_on:
+      - accounts
+      - front
+      - notifications
+      - exchange
+      - exchange-generator
+      - cash
+      - blocker
+      - transfer
 
 
 
