@@ -1,9 +1,12 @@
 package ru.yandex.practicum.frontui.controllers;
 
+
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,17 +24,33 @@ public class ExchangeProxyController {
     @Autowired
     private final RestTemplate restTemplate;
 
+    @Autowired
+    private final MeterRegistry registry;
+    @Value("${docker:false}")
+    boolean docker;
+
     @GetMapping("/exchange")
     public ResponseEntity<?> getExchange() {
-        HttpHeaders h = new HttpHeaders();
-//        ResponseEntity<String> resp = restTemplate.exchange(
-//                "http://gateway/exchange/getCurrencies",
-//                HttpMethod.GET, new HttpEntity<>(h), String.class);
-        ResponseEntity<String> resp = restTemplate.exchange(
-                "http://exchange:8080/getCurrencies",
-                HttpMethod.GET, new HttpEntity<>(h), String.class);
-        logger.info(resp.getBody());
-        return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
+        try {
+            HttpHeaders h = new HttpHeaders();
+            ResponseEntity<String> resp;
+            if (!docker) {
+                resp = restTemplate.exchange(
+                        "http://gateway/exchange/getCurrencies",
+                        HttpMethod.GET, new HttpEntity<>(h), String.class);
+            } else {
+                resp = restTemplate.exchange(
+                    "http://exchange:8080/getCurrencies",
+                    HttpMethod.GET, new HttpEntity<>(h), String.class);
+            }
+            logger.info(resp.getBody());
+            registry.gauge("exchanges_available", 1);
+            return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
+        } catch (Exception e) {
+            registry.gauge("exchanges_available", 0);
+            throw e;
+        }
+
     }
 }
 

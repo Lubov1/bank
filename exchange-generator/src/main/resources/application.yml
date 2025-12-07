@@ -45,6 +45,7 @@ rest-template-enabled: false
 customFilterChain:
   needed: false
 logging:
+  config: classpath:log4j2-spring.xml
   pattern:
     level: "%5p [${spring.application.name:},trace=%X{traceId:-},span=%X{spanId:-}]"
 

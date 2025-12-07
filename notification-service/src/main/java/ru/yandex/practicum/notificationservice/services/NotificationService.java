@@ -1,5 +1,7 @@
 package ru.yandex.practicum.notificationservice.services;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -14,10 +16,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class NotificationService {
     Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
+    MeterRegistry meterRegistry;
+    private final ConcurrentHashMap<String, AtomicInteger> blockedMap = new ConcurrentHashMap<>();
+
+    public NotificationService(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+    }
 
     @Value("${mail.smtp.host}")
     private String smtpHost;
@@ -64,8 +75,23 @@ public class NotificationService {
             Transport.send(emailMessage);
             acknowledgment.acknowledge();
             logger.info("Письмо отправлено успешно!");
+            setBlocked(email, true);
         } catch (MessagingException e) {
+            setBlocked(email, false);
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public void setBlocked(String login, boolean allowed) {
+        AtomicInteger value = blockedMap.computeIfAbsent(login, l -> {
+            AtomicInteger v = new AtomicInteger(0);
+            Gauge.builder("email_send_allowed", v, AtomicInteger::get)
+                    .description("1 = email sending is allowed for login, 0 = blocked")
+                    .tag("login", l)
+                    .register(meterRegistry);
+            return v;
+        });
+
+        value.set(allowed ? 1 : 0);
     }
 }

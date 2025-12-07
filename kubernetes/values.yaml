@@ -189,3 +189,10 @@ exchangeGenerator:
 
 kafka:
   enabled: true
+
+logstash:
+  enabled: true
+elasticsearch:
+  enabled: true
+kibana:
+  enabled: true

@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "accounts"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["accounts:8080"]
+
+  - job_name: "exchange"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["exchange:8080"]
+
+  - job_name: "exchange-generator"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["exchange-generator:8080"]
+
+  - job_name: "cash"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["cash:8080"]
+
+  - job_name: "blocker"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["blocker:8080"]
+
+  - job_name: "notifications"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["notifications:8080"]
+
+  - job_name: "transfer"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["transfer:8080"]
+
+  - job_name: "front"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["front:8080"]

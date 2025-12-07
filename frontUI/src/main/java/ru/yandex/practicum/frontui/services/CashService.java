@@ -17,6 +17,9 @@ public class CashService {
     @Value("${gateway.prefix}")
     String gatewayPrefix;
 
+    @Value("${docker:false}")
+    boolean docker;
+
     @Value("${cash.prefix}")
     String cashPrefix;
     private RestTemplate restTemplate;
@@ -40,10 +43,14 @@ public class CashService {
 
         HttpEntity<CashRequest> entity = new HttpEntity<>(new CashRequest(BigDecimal.valueOf(amount), currency), headers);
         try {
-//            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, cashPrefix, login, withdraw),
-//                    HttpMethod.POST, entity, Void.class);
-            restTemplate.exchange( "http://"+ cashPrefix+":8080/"+ login+"/"+ withdraw,
-                    HttpMethod.POST, entity, Void.class);
+            if (!docker) {
+                restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, cashPrefix, login, withdraw),
+                        HttpMethod.POST, entity, Void.class);
+            } else {
+                restTemplate.exchange( "http://"+ cashPrefix+":8080/"+ login+"/"+ withdraw,
+                        HttpMethod.POST, entity, Void.class);
+            }
+
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new CashServiceResponseException(ex.getMessage(), login);
         }

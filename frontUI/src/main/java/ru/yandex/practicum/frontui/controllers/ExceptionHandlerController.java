@@ -30,7 +30,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler({AccountServiceResponseException.class, CashServiceResponseException.class})
     public String handleException(ServiceException ex, RedirectAttributes ra) {
         ra.addFlashAttribute("error", ex.getMessage());
-        logger.info(ex.getMessage(), ex.getStackTrace());
+        logger.info(ex.getMessage(), (Object) ex.getStackTrace());
         return "redirect:/main/"+ex.getLogin();
     }
 

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "app.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+        {{- range $k, $v := .Values.podLabels }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ include "app.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 9090
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+          volumeMounts:
+            - name: app-config
+              mountPath: /etc/prometheus
+              readOnly: true
+      volumes:
+        - name: app-config
+          configMap:
+            name: {{ include "app.fullname" . }}-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml

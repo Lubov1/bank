@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.yandex.practicum.accountservice.dao.UserDao;
 import ru.yandex.practicum.accountservice.exceptions.UserNotFoundException;
 import ru.yandex.practicum.accountservice.repositories.UserRepository;
+import ru.yandex.practicum.bankautoconfigure.configuration.LoggerHelper;
 import ru.yandex.practicum.bankautoconfigure.configuration.NotificationService;
 
 import java.time.LocalDate;
@@ -28,6 +29,8 @@ public class UserServiceTest {
     NotificationService notificationService;
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    LoggerHelper loggerHelper;
     @Test
     void updatesPasswordAndNotifies() {
         var login = "alice";

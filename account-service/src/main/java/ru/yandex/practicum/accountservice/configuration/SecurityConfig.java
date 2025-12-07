@@ -18,8 +18,8 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain securityFilterChainOauth2(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/signup", "/login", "/actuator/health")
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health").permitAll()
+                .securityMatcher("/signup", "/login", "/actuator/**")
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(l -> l
                         .logoutUrl("/logout")

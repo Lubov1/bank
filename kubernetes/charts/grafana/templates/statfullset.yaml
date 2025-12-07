@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "app.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+        {{- range $k, $v := .Values.podLabels }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ include "app.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin
+
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+            - name: providers
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
+            - name: allerts
+              mountPath: /etc/grafana/provisioning/alerting
+              readOnly: true
+
+      volumes:
+        - name: datasources
+          configMap:
+            name: {{ include "app.fullname" . }}-datasources
+        - name: providers
+          configMap:
+            name: {{ include "app.fullname" . }}-providers
+        - name: dashboards
+          configMap:
+            name: {{ include "app.fullname" . }}-dashboards
+        - name: allerts
+          configMap:
+            name: grafana-alerting-provisioning

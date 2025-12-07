@@ -14,6 +14,8 @@ public class BlockerService {
     @Value("${blocker.prefix}")
     private String blockerPrefix;
     private RestTemplate restTemplate;
+    @Value("${docker:false}")
+    boolean docker;
 
     public BlockerService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -26,9 +28,12 @@ public class BlockerService {
         map.add("amount", amount.toString());
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
 
-//        restTemplate.exchange("http://" + gatewayApiPrefix + "/"+ blockerPrefix + "/" + login +"/check",
-//                HttpMethod.POST, entity, Void.class);
-        restTemplate.exchange("http://" + blockerPrefix + ":8080/" + login +"/check",
-                HttpMethod.POST, entity, Void.class);
+        if (!docker) {
+            restTemplate.exchange("http://" + gatewayApiPrefix + "/" + blockerPrefix + "/" + login + "/check",
+                    HttpMethod.POST, entity, Void.class);
+        } else {
+            restTemplate.exchange("http://" + blockerPrefix + ":8080/" + login +"/check",
+                    HttpMethod.POST, entity, Void.class);
+        }
     }
 }

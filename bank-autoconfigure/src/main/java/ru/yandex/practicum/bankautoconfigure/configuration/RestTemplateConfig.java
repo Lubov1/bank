@@ -86,7 +86,7 @@ public class RestTemplateConfig {
         logger.info("CustomFilterChain is initialized");
         return http
                 .securityMatcher("/**")
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -103,5 +103,4 @@ public class RestTemplateConfig {
     BlockerService blockerService(RestTemplate restTemplate) {
         return new BlockerService(restTemplate);
     }
-
 }

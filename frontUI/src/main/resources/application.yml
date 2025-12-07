@@ -1,7 +1,19 @@
 spring:
   application:
     name: front
-
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    admin:
+      client-id: yandex-practicum
+      fail-fast: true
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 0
+      retries: 0
+      properties:
+        enable.idempotence: false
   security:
     oauth2:
       resourceserver:
@@ -63,10 +75,5 @@ management:
   zipkin:
     tracing:
       endpoint: http://zipkin:9411/api/v2/spans
-logging:
-  level:
-    zipkin2.reporter: DEBUG
-    io.micrometer.tracing: DEBUG
-    org.springframework.boot.actuate.autoconfigure.tracing: DEBUG
-  pattern:
-    level: "%5p [${spring.application.name:},trace=%X{traceId:-},span=%X{spanId:-}]"
+
+docker: true
