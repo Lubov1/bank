@@ -8,16 +8,13 @@ $ErrorActionPreference = "Stop"
 
 $Builds = @(
   @{ Image = "exchange"; Dockerfile = "DockerfileExchange" },
-  @{ Image = "exchange-generator"; Dockerfile = "DockerfileExchangeGenerator" }
-,
+  @{ Image = "exchange-generator"; Dockerfile = "DockerfileExchangeGenerator" },
   @{ Image = "accounts"; Dockerfile = "DockerfileAccountService" },
-  @{ Image = "front";    Dockerfile = "DockerfileFront" }
-,
+  @{ Image = "front";    Dockerfile = "DockerfileFront" },
   @{ Image = "blocker"; Dockerfile = "DockerfileBlocker" },
   @{ Image = "cash";    Dockerfile = "DockerfileCashService" },
   @{ Image = "notifications"; Dockerfile = "DockerfileNotificationService" },
   @{ Image = "transfer";    Dockerfile = "DockerfileTransfer" }
-
 )
 
 #function Build-And-Load($image, $dockerfile, $tag, $platform, $profile) {
@@ -46,7 +43,7 @@ $jobs = foreach ($b in $Builds) {
 
       Write-Host "Loading into minikube: $($image):$tag"
 
-      minikube image load $($image):$tag -p $profile --overwrite 2>&1 |
+      minikube image load "$($image):$tag" -p "$profile" --overwrite 2>&1 |
       ForEach-Object { Write-Host $_ }
 
       if ($LASTEXITCODE -ne 0) { throw "Minikube load failed: $($image):$tag" }
