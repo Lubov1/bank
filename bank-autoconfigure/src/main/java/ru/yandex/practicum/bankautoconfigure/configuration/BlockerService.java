@@ -9,13 +9,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 
 public class BlockerService {
-    @Value("${gateway.prefix}")
-    private String gatewayApiPrefix;
     @Value("${blocker.prefix}")
     private String blockerPrefix;
     private RestTemplate restTemplate;
-    @Value("${docker:false}")
-    boolean docker;
 
     public BlockerService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -28,12 +24,8 @@ public class BlockerService {
         map.add("amount", amount.toString());
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
 
-        if (!docker) {
-            restTemplate.exchange("http://" + gatewayApiPrefix + "/" + blockerPrefix + "/" + login + "/check",
+        restTemplate.exchange(String.join( "/", blockerPrefix, login, "check"),
                     HttpMethod.POST, entity, Void.class);
-        } else {
-            restTemplate.exchange("http://" + blockerPrefix + ":8080/" + login +"/check",
-                    HttpMethod.POST, entity, Void.class);
-        }
+
     }
 }

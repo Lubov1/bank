@@ -32,22 +32,7 @@ spring:
 logging:
   pattern:
     level: "%5p [${spring.application.name:},trace=%X{traceId:-},span=%X{spanId:-}]"
-accounts:
-  prefix: accounts
-exchange:
-  prefix: exchange
-gateway:
-  prefix: ""
-exchange-generator:
-  prefix: exchange-generator
-cash:
-  prefix: cash
-blocker:
-  prefix: blocker
-transfer:
-  prefix: transfer
-notifications:
-  prefix: notifications
+
 mail:
   smtp:
     host: smtp.gmail.com
@@ -79,3 +64,48 @@ management:
   zipkin:
     tracing:
       endpoint: http://zipkin:9411/api/v2/spans
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+accounts:
+  prefix: "http://accounts:8080"
+exchange:
+  prefix: "http://exchange:8080"
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: "http://exchange-generator:8080"
+cash:
+  prefix: "http://cash:8080"
+blocker:
+  prefix: "http://blocker:8080"
+transfer:
+  prefix: "http://transfer:8080"
+notifications:
+  prefix: "http://notifications:8080"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+accounts:
+  prefix: "http://accounts/gateway"
+exchange:
+  prefix: "http://exchange/gateway"
+exchange-generator:
+  prefix: "http://exchange-generator/gateway"
+cash:
+  prefix: "http://cash/gateway"
+blocker:
+  prefix: "http://blocker/gateway"
+transfer:
+  prefix: "http://transfer/gateway"
+notifications:
+  prefix: "http://notifications/gateway"

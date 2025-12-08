@@ -15,15 +15,11 @@ import java.math.BigDecimal;
 
 @Service
 public class AccountService {
-    @Value("${gateway.prefix}")
-    private String gatewayApiPrefix;
 
     @Value("${accounts.prefix}")
     private String accountPrefix;
 
     private RestTemplate restTemplate;
-    @Value("${docker:false}")
-    boolean docker;
     Logger logger = LoggerFactory.getLogger(AccountService.class);
     LoggerHelper loggerHelper;
 
@@ -40,13 +36,8 @@ public class AccountService {
         HttpEntity<CashRequestDto> entity =
                 new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
         ResponseEntity<Void> response;
-        if (!docker) {
-            response = restTemplate.exchange(String.join("/", "http:/", gatewayApiPrefix, accountPrefix, login, "withdraw"),
+        response = restTemplate.exchange(String.join("/", accountPrefix, login, "withdraw"),
                     HttpMethod.POST, entity, Void.class);
-        } else {
-            response = restTemplate.exchange(String.join("/","http:/", accountPrefix+":8080", login, "withdraw"),
-                    HttpMethod.POST, entity, Void.class);
-        }
         if (response.getStatusCode() != HttpStatus.OK) {
             if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new IOException("account not found " + currency);
@@ -67,13 +58,8 @@ public class AccountService {
         HttpEntity<CashRequestDto> entity =
                 new HttpEntity<>(new CashRequestDto(currency.name(), amount.toString()), headers);
         ResponseEntity<Void> response;
-        if (!docker) {
-            response = restTemplate.exchange(String.join("/", "http:/", gatewayApiPrefix, accountPrefix, login, "deposit"),
+        response = restTemplate.exchange(String.join("/", accountPrefix, login, "deposit"),
                     HttpMethod.POST, entity, Void.class);
-        } else {
-            response = restTemplate.exchange(String.join("/","http:/", accountPrefix+":8080", login, "deposit"),
-                    HttpMethod.POST, entity, Void.class);
-        }
         if (response.getStatusCode() != HttpStatus.OK) {
             if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new IOException("account not found " + currency);

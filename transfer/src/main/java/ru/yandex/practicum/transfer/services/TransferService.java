@@ -25,13 +25,8 @@ import java.util.Map;
 public class TransferService {
     Logger logger = LoggerFactory.getLogger(TransferService.class);
 
-    @Value("${gateway.prefix}")
-    private String gatewayApiPrefix;
-
     @Value("${accounts.prefix}")
     private String accountPrefix;
-    @Value("${docker:false}")
-    boolean docker;
 
     @Value("${exchange.prefix}")
     private String exchangePrefix;
@@ -70,29 +65,20 @@ public class TransferService {
 
         headers.setContentType(MediaType.APPLICATION_JSON);        TransferRequestDto transferRequestDto =
                 new TransferRequestDto(amountFrom, amountTo, currencyFrom, currencyTo, loginTo);
-        if (!docker) {
-            restTemplate.exchange(String.join("/", "http:/", gatewayApiPrefix, accountPrefix, login, "transfer"),
-                    HttpMethod.POST, new HttpEntity<>(transferRequestDto, headers), new ParameterizedTypeReference<>() {
-                    });
-        } else {
-            restTemplate.exchange(String.join("/","http:/",  accountPrefix+":8080", login, "transfer"),
-                        HttpMethod.POST, new HttpEntity<>(transferRequestDto, headers), new ParameterizedTypeReference<>() {});
-        }
+        restTemplate.exchange(String.join("/", accountPrefix, login, "transfer"),
+                HttpMethod.POST, new HttpEntity<>(transferRequestDto, headers), new ParameterizedTypeReference<>() {
+                });
+
     }
 
     private BigDecimal getAmount(Pair<Currencies, Currencies> currencies, BigDecimal amount) {
         HttpHeaders h = new HttpHeaders();
         ResponseEntity<Map<String, Currency>> resp;
-        if (!docker) {
-            resp = restTemplate.exchange(
-                    String.join("/", "http:/", gatewayApiPrefix, exchangePrefix, "getCurrencies"),
-                    HttpMethod.GET, new HttpEntity<>(h), new ParameterizedTypeReference<>() {
-                    });
-        } else {
-            resp = restTemplate.exchange(
-                    String.join("/","http:/", exchangePrefix+":8080", "getCurrencies"),
-                    HttpMethod.GET, new HttpEntity<>(h), new ParameterizedTypeReference<>() {});
-        }
+        resp = restTemplate.exchange(
+                String.join("/", exchangePrefix, "getCurrencies"),
+                HttpMethod.GET, new HttpEntity<>(h), new ParameterizedTypeReference<>() {
+                });
+
         Map<String,Currency> exchangeCurrencies = resp.getBody();
         if (exchangeCurrencies==null) {
             throw new RuntimeException("ExchangeCurrencies is null");

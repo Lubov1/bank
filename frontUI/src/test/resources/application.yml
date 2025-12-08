@@ -9,19 +9,21 @@ spring:
   discovery:
     enabled: false
 
+
+
 accounts:
-  prefix: accounts
+  prefix: "http://accounts:8080"
 exchange:
-  prefix: exchange
+  prefix: "http://exchange:8080"
 gateway:
-  prefix: gateway
+  prefix: ""
 exchange-generator:
-  prefix: exchange-generator
+  prefix: "http://exchange-generator:8080"
 cash:
-  prefix: cash
+  prefix: "http://cash:8080"
 blocker:
-  prefix: blocker
+  prefix: "http://blocker:8080"
 transfer:
-  prefix: transfer
+  prefix: "http://transfer:8080"
 notifications:
-  prefix: notifications
+  prefix: "http://notifications:8080"

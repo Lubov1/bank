@@ -9,9 +9,7 @@ spring:
             client-id: front
             client-secret: front-secret
             scope: profile,email
-accounts:
-  prefix: accounts
-gateway:
-  prefix: gateway
+
+
 server:
   port: 8080

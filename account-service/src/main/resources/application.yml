@@ -75,21 +75,50 @@ blockerService:
 notificationsService:
   needed: true
 
+server:
+  port: 8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: docker
 accounts:
-  prefix: accounts
+  prefix: "http://accounts:8080"
 exchange:
-  prefix: exchange
+  prefix: "http://exchange:8080"
 gateway:
   prefix: ""
 exchange-generator:
-  prefix: exchange-generator
+  prefix: "http://exchange-generator:8080"
 cash:
-  prefix: cash
+  prefix: "http://cash:8080"
 blocker:
-  prefix: blocker
+  prefix: "http://blocker:8080"
 transfer:
-  prefix: transfer
+  prefix: "http://transfer:8080"
 notifications:
-  prefix: notifications
-server:
-  port: 8080
+  prefix: "http://notifications:8080"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+accounts:
+  prefix: "http://accounts/gateway"
+exchange:
+  prefix: "http://exchange/gateway"
+exchange-generator:
+  prefix: "http://exchange-generator/gateway"
+cash:
+  prefix: "http://cash/gateway"
+blocker:
+  prefix: "http://blocker/gateway"
+transfer:
+  prefix: "http://transfer/gateway"
+notifications:
+  prefix: "http://notifications/gateway"

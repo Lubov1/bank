@@ -19,13 +19,8 @@ public class TransferService {
         this.restTemplate = restTemplate;
     }
 
-    @Value("${gateway.prefix}")
-    String gatewayPrefix;
-
     @Value("${transfer.prefix}")
     String transferPrefix;
-    @Value("${docker:false}")
-    boolean docker;
     private RestTemplate restTemplate;
 
     public void transfer(String loginFrom, String loginTo,  Currencies currencyFrom, Currencies currencyTo, Long amount) {
@@ -36,13 +31,8 @@ public class TransferService {
 
         HttpEntity<TransferRequest> entity = new HttpEntity<>(new TransferRequest(loginTo,currencyFrom,currencyTo, BigDecimal.valueOf(amount)), headers);
         try {
-            if (!docker) {
-                restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, transferPrefix, loginFrom, "transfer"),
+            restTemplate.exchange(String.join("/", transferPrefix, loginFrom, "transfer"),
                         HttpMethod.POST, entity, Void.class);
-            } else {
-                restTemplate.exchange(String.join("/","http:/", transferPrefix+":8080", loginFrom, "transfer"),
-                        HttpMethod.POST, entity, Void.class);
-            }
 
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), loginFrom);

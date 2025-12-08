@@ -38,6 +38,8 @@ spec:
           env:
             - name: SPRING_CONFIG_IMPORT
               value: "optional:/config/application-global.yml,optional:/config/application-service.yml"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
           volumeMounts:
             - name: app-config
               mountPath: /config

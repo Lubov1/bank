@@ -26,23 +26,16 @@ public class ExchangeProxyController {
 
     @Autowired
     private final MeterRegistry registry;
-    @Value("${docker:false}")
-    boolean docker;
+    @Value("${exchange.prefix}")
+    String exchangePrefix;
 
     @GetMapping("/exchange")
     public ResponseEntity<?> getExchange() {
         try {
             HttpHeaders h = new HttpHeaders();
             ResponseEntity<String> resp;
-            if (!docker) {
-                resp = restTemplate.exchange(
-                        "http://gateway/exchange/getCurrencies",
-                        HttpMethod.GET, new HttpEntity<>(h), String.class);
-            } else {
-                resp = restTemplate.exchange(
-                    "http://exchange:8080/getCurrencies",
+            resp = restTemplate.exchange(String.join("/", exchangePrefix, "getCurrencies"),
                     HttpMethod.GET, new HttpEntity<>(h), String.class);
-            }
             logger.info(resp.getBody());
             registry.gauge("exchanges_available", 1);
             return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());

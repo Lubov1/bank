@@ -13,9 +13,20 @@ blockerService:
   needed: true
 notificationsService:
   needed: true
-gateway:
-  prefix: gateway
+
 accounts:
-  prefix: accounts
+  prefix: "http://accounts:8080"
 exchange:
-  prefix: exchange
+  prefix: "http://exchange:8080"
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: "http://exchange-generator:8080"
+cash:
+  prefix: "http://cash:8080"
+blocker:
+  prefix: "http://blocker:8080"
+transfer:
+  prefix: "http://transfer:8080"
+notifications:
+  prefix: "http://notifications:8080"
