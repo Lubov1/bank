@@ -9,8 +9,6 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 
 public class BlockerService {
-    @Value("${gateway.prefix}")
-    private String gatewayApiPrefix;
     @Value("${blocker.prefix}")
     private String blockerPrefix;
     private RestTemplate restTemplate;
@@ -26,7 +24,8 @@ public class BlockerService {
         map.add("amount", amount.toString());
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
 
-        restTemplate.exchange("http://" + gatewayApiPrefix + "/"+ blockerPrefix + "/" + login +"/check",
-                HttpMethod.POST, entity, Void.class);
+        restTemplate.exchange(String.join( "/", blockerPrefix, login, "check"),
+                    HttpMethod.POST, entity, Void.class);
+
     }
 }

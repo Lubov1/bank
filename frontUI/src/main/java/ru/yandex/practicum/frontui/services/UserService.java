@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import ru.yandex.practicum.bankautoconfigure.configuration.LoggerHelper;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
 import ru.yandex.practicum.frontui.dto.Account;
 import ru.yandex.practicum.frontui.dto.PersonalInformation;
@@ -24,30 +25,31 @@ import java.util.List;
 @Service
 public class UserService {
     Logger logger = LoggerFactory.getLogger(UserService.class);
-
+    LoggerHelper loggerHelper;
     @Value("${accounts.prefix}")
     String accountPrefix;
-    @Value("${gateway.prefix}")
-    String gatewayPrefix;
     RestTemplate restTemplate;
 
-
-    public UserService(RestTemplate restTemplate) {
+    public UserService(RestTemplate restTemplate, LoggerHelper loggerHelper) {
         this.restTemplate = restTemplate;
+        this.loggerHelper = loggerHelper;
     }
 
     public void createUser(UserData user) {
         try {
-            logger.info("user {} is creating", user.getLogin());
+            loggerHelper.logWithUser(user.getLogin(), ()->logger.info("user {} is creating", user.getLogin()));
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<UserData> entity = new HttpEntity<>(user, headers);
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "signup")
-                    , HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/", accountPrefix, "signup")
+                        , HttpMethod.POST, entity, Void.class);
 
-            logger.info("user {} is created", user.getLogin());
+            loggerHelper.logWithUser(user.getLogin(), ()-> {
+                logger.info(String.join("/", "http:/", accountPrefix+":8080", "signup"));
+
+                logger.info("user {} is created", user.getLogin());});
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
         }
@@ -59,17 +61,20 @@ public class UserService {
             headers.setAccept(List.of(MediaType.ALL));
 
             HttpEntity<User> entity = new HttpEntity<>(user, headers);
-             restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "login")
-                    , HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/", accountPrefix, "login")
+                        , HttpMethod.POST, entity, Void.class);
+
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new LoginException(ex.getMessage(), user.getLogin());
         }
     }
 
     public List<Account> getAccounts(String login) {
-        logger.info("getting accounts");
+        loggerHelper.logWithUser(login, ()->
+            logger.info("getting accounts"));
         try {
-            ResponseEntity<List<Account>> response = restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/getAccounts"
+            ResponseEntity<List<Account>> response;
+            response = restTemplate.exchange(String.join("/", accountPrefix, login, "getAccounts")
                     , HttpMethod.GET, null, new ParameterizedTypeReference<>() {
                     });
 
@@ -86,8 +91,9 @@ public class UserService {
 
         HttpEntity<MultiValueMap<String,String>> entity = new HttpEntity<>(map, headers);
         try {
-            restTemplate.exchange("http://" + gatewayPrefix + "/" + accountPrefix + "/" + login + "/editPassword",
+            restTemplate.exchange(String.join("/", accountPrefix, login, "editPassword"),
                     HttpMethod.POST, entity, Void.class);
+
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), login);
         }
@@ -95,8 +101,8 @@ public class UserService {
 
     public void changeUserAccounts(String login, String name, LocalDate birthdate) {
         try {
-            restTemplate.exchange(String.join("/","http:/",gatewayPrefix, accountPrefix, login, "editUserAccounts"),
-                    HttpMethod.POST, new HttpEntity<>(new PersonalInformation(name, birthdate)), Void.class);
+            restTemplate.exchange(String.join("/",  accountPrefix, login, "editUserAccounts"),
+                        HttpMethod.POST, new HttpEntity<>(new PersonalInformation(name, birthdate)), Void.class);
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new AccountServiceResponseException(ex.getMessage(), login);
         }
@@ -112,11 +118,13 @@ public class UserService {
         HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(map, headers);
 
         try {
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "addAccount"),
-                    HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/", accountPrefix, login, "addAccount"),
+                        HttpMethod.POST, entity, Void.class);
+
 
         } catch (RestClientResponseException ex) {
-            logger.info("RestClientResponseException");
+            loggerHelper.logWithUser(login, ()->
+                    logger.info("RestClientResponseException"));
             throw new AccountServiceResponseException(ex.getMessage(), login);
 
         }
@@ -131,18 +139,21 @@ public class UserService {
         HttpEntity<MultiValueMap<String,Object>> entity = new HttpEntity<>(map, headers);
 
         try {
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, login, "deleteAccount"),
-                    HttpMethod.POST, entity, Void.class);
+                restTemplate.exchange(String.join("/", accountPrefix, login, "deleteAccount"),
+                        HttpMethod.POST, entity, Void.class);
+
 
         } catch (RestClientResponseException ex) {
-            logger.info("RestClientResponseException");
+            loggerHelper.logWithUser(login, ()->
+                logger.info("RestClientResponseException"));
+
             throw new AccountServiceResponseException(ex.getMessage(), login);
 
         }
     }
 
     public void logout() {
-        restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, accountPrefix, "/logout")
+        restTemplate.exchange(String.join("/", accountPrefix, "/logout")
                 , HttpMethod.POST, null, new ParameterizedTypeReference<>() {
                 });
     }

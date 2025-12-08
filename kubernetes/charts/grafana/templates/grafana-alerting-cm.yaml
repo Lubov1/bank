@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting-provisioning
+data:
+  contactpoints.yaml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: email
+        receivers:
+          - uid: email-recv
+            type: email
+            settings:
+              addresses: lubov.88867@gmail.com
+
+  notificationpolicies.yaml: |
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: email
+
+  rules.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: spring
+        folder: Alerts
+        interval: 1m
+        rules:
+          - uid: spring-down
+            title: SpringServiceDown
+            condition: A
+            data:
+              - refId: A
+                datasourceUid: prometheus
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                intervalMs: 60000
+                model:
+                  expr: up{job="spring"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Spring сервис недоступен"
+          - uid: blocked-transfers-ge-3
+            title: Blocked transfers >= 3
+            condition: A
+            data:
+              - refId: A
+                datasourceUid: prometheus
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                intervalMs: 60000
+                model:
+                  expr: sum by (login) (transfer_blocked_total) >= 3
+                  intervalMs: 60000
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Заблокированные переводы >= 3"
+              description: "login={{"{{"}} $labels.login {{"}}"}}, value={{"{{"}} $values.A {{"}}"}}"

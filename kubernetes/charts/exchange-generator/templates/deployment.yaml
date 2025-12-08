@@ -35,6 +35,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
             - name: SPRING_CONFIG_IMPORT
               value: "optional:/config/application-global.yml,optional:/config/application-service.yml"
           volumeMounts:

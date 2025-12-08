@@ -1,0 +1,15 @@
+env:
+  - name: STORAGE_TYPE
+    value: mysql
+  - name: MYSQL_HOST
+    value: zipkin-mysql
+  - name: MYSQL_DB
+    value: zipkin
+
+mysql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: standard

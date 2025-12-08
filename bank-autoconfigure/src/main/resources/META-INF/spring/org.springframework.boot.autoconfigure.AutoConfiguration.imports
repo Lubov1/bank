@@ -1,1 +1,3 @@
 ru.yandex.practicum.bankautoconfigure.configuration.RestTemplateConfig
+ru.yandex.practicum.bankautoconfigure.configuration.KafkaConfig
+ru.yandex.practicum.bankautoconfigure.configuration.LoggerConfig

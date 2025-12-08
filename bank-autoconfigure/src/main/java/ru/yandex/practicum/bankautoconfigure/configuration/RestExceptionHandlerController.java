@@ -17,6 +17,7 @@ public class RestExceptionHandlerController {
     public ResponseEntity<Map<String, Object>> handleDownstream(RestClientResponseException ex) {
         String message = ex.getMessage();
         logger.info(message, ex.getResponseBodyAsString());
+        logger.info(message, ex.getStackTrace().toString());
         return ResponseEntity
                 .status(ex.getRawStatusCode())
                 .body(Map.of(

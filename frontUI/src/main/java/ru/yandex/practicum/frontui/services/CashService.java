@@ -14,8 +14,6 @@ import java.math.BigDecimal;
 public class CashService {
     @Value("${accounts.prefix}")
     String accountPrefix;
-    @Value("${gateway.prefix}")
-    String gatewayPrefix;
 
     @Value("${cash.prefix}")
     String cashPrefix;
@@ -36,12 +34,11 @@ public class CashService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-
-
         HttpEntity<CashRequest> entity = new HttpEntity<>(new CashRequest(BigDecimal.valueOf(amount), currency), headers);
         try {
-            restTemplate.exchange(String.join("/", "http:/", gatewayPrefix, cashPrefix, login, withdraw),
-                    HttpMethod.POST, entity, Void.class);
+            restTemplate.exchange(String.join("/", cashPrefix, login, withdraw),
+                        HttpMethod.POST, entity, Void.class);
+
         } catch (org.springframework.web.client.HttpStatusCodeException ex) {
             throw new CashServiceResponseException(ex.getMessage(), login);
         }

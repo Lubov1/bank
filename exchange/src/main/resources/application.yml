@@ -2,12 +2,12 @@ spring:
   application:
     name: exchange
   kafka:
-    bootstrap-servers: 'localhost:9092'
+    bootstrap-servers: 'kafka:9092'
     admin:
       client-id: yandex-practicum
       fail-fast: true
     consumer:
-      bootstrap-servers: localhost:9092
+      bootstrap-servers: kafka:9092
       group-id: yandex-practicum
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -17,7 +17,15 @@ spring:
       ack-mode: MANUAL
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+
       client:
+        provider:
+          keycloak:
+            token-uri: http://keycloak:8080/realms/master/protocol/openid-connect/token
+
         registration:
           exchange:
             authorization-grant-type: client_credentials
@@ -27,9 +35,73 @@ spring:
             scope: profile,email
 server:
   port: 8080
-
 management:
   endpoints:
     web:
       exposure:
-        include: beans,conditions,env,configprops,mappings
+        include: health, info, prometheus, metrics
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},trace=%X{traceId:-},span=%X{spanId:-}]"
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+accounts:
+  prefix: "http://accounts:8080"
+exchange:
+  prefix: "http://exchange:8080"
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: "http://exchange-generator:8080"
+cash:
+  prefix: "http://cash:8080"
+blocker:
+  prefix: "http://blocker:8080"
+transfer:
+  prefix: "http://transfer:8080"
+notifications:
+  prefix: "http://notifications:8080"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+accounts:
+  prefix: "http://accounts/gateway"
+exchange:
+  prefix: "http://exchange/gateway"
+exchange-generator:
+  prefix: "http://exchange-generator/gateway"
+cash:
+  prefix: "http://cash/gateway"
+blocker:
+  prefix: "http://blocker/gateway"
+transfer:
+  prefix: "http://transfer/gateway"
+notifications:
+  prefix: "http://notifications/gateway"

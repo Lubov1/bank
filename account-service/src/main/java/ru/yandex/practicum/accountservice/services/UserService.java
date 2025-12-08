@@ -1,5 +1,6 @@
 package ru.yandex.practicum.accountservice.services;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 public class UserService {
     PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final MeterRegistry meterRegistry;
     @Autowired
     private final NotificationService notificationService;
     @Transactional
@@ -64,10 +66,13 @@ public class UserService {
     public void loginUser(CredentialsDto credentials) {
         UserDao userDao = getUserByLogin(credentials.getLogin());
         if (userDao == null) {
+            meterRegistry.counter("login_fail", "user", credentials.getLogin()).increment();
             throw new UserNotFoundException("user " + credentials.getLogin() + " not found");
         }
         if (!passwordEncoder.matches(credentials.getPassword(), userDao.getPassword())) {
+            meterRegistry.counter("login_fail", "user", credentials.getLogin()).increment();
             throw new IncorrectPasswordException();
         }
+        meterRegistry.counter("login_success", "user", credentials.getLogin()).increment();
     }
 }

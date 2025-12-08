@@ -1,19 +1,91 @@
 spring:
+  main:
+    web-application-type: none
   application:
     name: exchange-generator
   kafka:
-    bootstrap-servers: 'localhost:9092'
+    bootstrap-servers: 'kafka:9092'
     admin:
       client-id: yandex-practicum
       fail-fast: true
     producer:
-      bootstrap-servers: localhost:9092
+      bootstrap-servers: kafka:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: 0
       retries: 0
       properties:
         enable.idempotence: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0   # 100% спанов
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
 server:
   port: 8080
+rest-template-enabled: false
+customFilterChain:
+  needed: false
+---
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+accounts:
+  prefix: "http://accounts:8080"
+exchange:
+  prefix: "http://exchange:8080"
+gateway:
+  prefix: ""
+exchange-generator:
+  prefix: "http://exchange-generator:8080"
+cash:
+  prefix: "http://cash:8080"
+blocker:
+  prefix: "http://blocker:8080"
+transfer:
+  prefix: "http://transfer:8080"
+notifications:
+  prefix: "http://notifications:8080"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: k8s
+
+accounts:
+  prefix: "http://accounts/gateway"
+exchange:
+  prefix: "http://exchange/gateway"
+exchange-generator:
+  prefix: "http://exchange-generator/gateway"
+cash:
+  prefix: "http://cash/gateway"
+blocker:
+  prefix: "http://blocker/gateway"
+transfer:
+  prefix: "http://transfer/gateway"
+notifications:
+  prefix: "http://notifications/gateway"
 

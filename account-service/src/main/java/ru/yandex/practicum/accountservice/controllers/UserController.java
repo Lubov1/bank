@@ -23,6 +23,7 @@ import ru.yandex.practicum.accountservice.dto.CredentialsDto;
 import ru.yandex.practicum.accountservice.dto.PersonalInformationDto;
 import ru.yandex.practicum.accountservice.dto.UserDto;
 import ru.yandex.practicum.accountservice.services.UserService;
+import ru.yandex.practicum.bankautoconfigure.configuration.LoggerHelper;
 
 import java.util.List;
 
@@ -32,17 +33,20 @@ import java.util.List;
 public class UserController {
     private UserService userService;
     Logger logger = LoggerFactory.getLogger(UserController.class);
+    LoggerHelper loggerHelper;
     @Autowired
     SecurityContextRepository securityContextRepository;
-    public UserController(UserService userService, SecurityContextRepository securityContextRepository) {
+    public UserController(UserService userService, SecurityContextRepository securityContextRepository,
+                          LoggerHelper loggerHelper) {
         this.userService = userService;
         this.securityContextRepository = securityContextRepository;
+        this.loggerHelper = loggerHelper;
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserDto user, HttpServletRequest req,
                                     HttpServletResponse res) {
-        logger.info("creating user");
+        loggerHelper.logWithUser(user.getLogin(), ()->logger.info("creating user"));
         userService.createUser(user);
         createContext(user.getLogin(), req, res);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -51,7 +55,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody CredentialsDto credentials, HttpServletRequest req,
                                    HttpServletResponse res) {
-        logger.info("login user");
+        loggerHelper.logWithUser(credentials.getLogin(), ()->logger.info("login user"));
         userService.loginUser(credentials);
         createContext(credentials.getLogin(), req, res);
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -60,6 +64,7 @@ public class UserController {
     public ResponseEntity<Void> logout(HttpServletRequest req, HttpServletResponse res) {
         var s = req.getSession(false);
         if (s != null) s.invalidate();
+        loggerHelper.logWithUser(req.getRemoteUser(), ()->logger.info("user logout"));
 
         var cookie = ResponseCookie.from("JSESSIONID", "")
                 .maxAge(0).path("/")
@@ -72,14 +77,14 @@ public class UserController {
 
     @PostMapping("/{login}/editPassword")
     public ResponseEntity<?> editPassword(@PathVariable String login, @RequestParam String password) {
-        logger.info("editing password");
+        loggerHelper.logWithUser(login, ()->logger.info("editing password"));
         userService.editUserPassword(login, password);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/{login}/editUserAccounts")
     public ResponseEntity<?> editUserAccounts(@PathVariable String login, @RequestBody PersonalInformationDto personalInformation) {
-        logger.info("editing password");
+        loggerHelper.logWithUser(login, ()->logger.info("editing user accounts"));
         userService.editUserAccounts(login, personalInformation.getName(), personalInformation.getBirthday());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

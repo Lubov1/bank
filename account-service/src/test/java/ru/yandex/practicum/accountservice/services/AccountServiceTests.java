@@ -12,6 +12,7 @@ import ru.yandex.practicum.accountservice.exceptions.AccountException;
 import ru.yandex.practicum.accountservice.exceptions.AccountNotFoundException;
 import ru.yandex.practicum.accountservice.exceptions.InsufficientFundsException;
 import ru.yandex.practicum.accountservice.repositories.AccountRepository;
+import ru.yandex.practicum.bankautoconfigure.configuration.LoggerHelper;
 import ru.yandex.practicum.bankautoconfigure.configuration.NotificationService;
 import ru.yandex.practicum.bankautoconfigure.currency.Currencies;
 
@@ -34,6 +35,9 @@ public class AccountServiceTests {
     private NotificationService notificationService;
     @Mock
     private UserService userService;
+
+    @Mock
+    LoggerHelper loggerHelper;
 
     @InjectMocks
     AccountService accountService;

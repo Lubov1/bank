@@ -23,13 +23,14 @@ public class ExceptionHandlerController {
     @ExceptionHandler({IOException.class, IllegalArgumentException.class})
     public ResponseEntity<String> handleException(IOException ex) {
         logger.info(ex.getMessage());
+        logger.info(ex.getStackTrace().toString());
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(ex.getMessage());
     }
 
     @ExceptionHandler({AccountServiceResponseException.class, CashServiceResponseException.class})
     public String handleException(ServiceException ex, RedirectAttributes ra) {
         ra.addFlashAttribute("error", ex.getMessage());
-        logger.info(ex.getMessage(), ex.getStackTrace());
+        logger.info(ex.getMessage(), (Object) ex.getStackTrace());
         return "redirect:/main/"+ex.getLogin();
     }
 
